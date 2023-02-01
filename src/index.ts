@@ -5,7 +5,6 @@ import SGithubRepoList from "./task/s-github-repo-list";
 
 (async () => {
 
-
     await new SGithubRepoList({}).run();
     return;
 
