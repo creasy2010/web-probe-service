@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   web-probe:
-    platform: linux/amd64
+#    platform: linux/amd64
 #    image: yangxiaodong/app_moon-app-auto:latest
     image: yangxiaodong/web-probe:0.0.1-beta.4
     logging:
