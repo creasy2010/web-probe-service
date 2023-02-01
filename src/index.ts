@@ -11,6 +11,7 @@ import SGithubRepoList from "./task/s-github-repo-list";
         } catch (err) {
             console.warn("方法:", err);
         }
+        await sleep(30* 60*1000 )
     }
 
     return;
