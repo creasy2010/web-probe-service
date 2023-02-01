@@ -2,7 +2,8 @@
 	"scripts": {
 		"start": "ts-node ./src/index.ts",
 		"build:docker": "docker-compose -f docker-compose-build.yml down -v && docker-compose -f docker-compose-build.yml build",
-		"start:docker": "docker-compose -f docker-compose.yml down -v && docker-compose -f docker-compose.yml up -d && docker ps"
+		"start:docker": "docker-compose -f docker-compose.yml down -v && docker-compose  up -d && docker ps",
+		"auto": "docker-compose down -v && git pull && docker-compose up -d  && docker ps"
 	},
 	"dependencies": {
 		"@types/fs-extra": "^11.0.1",
