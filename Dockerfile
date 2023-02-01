@@ -1,14 +1,7 @@
 FROM --platform=linux/amd64  ghcr.io/puppeteer/puppeteer:latest
-# 时区设置
-RUN mkdir -p /usr/share/zoneinfo/Asia/
-RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    echo 'Asia/Shanghai' >/etc/timezone
-RUN dpkg-reconfigure -f noninteractive tzdata
-# 时区设置
-ENV NODE_ENV = production DOCKER_FLAG = true TZ="Asia/Shanghai"
 
-RUN apt-get update  -y && apt-get install -y git  &&  apt-get install -y vim
-RUN npm install -g typescript --registry https://registry.npm.taobao.org &&   npm install -g ts-node --registry https://registry.npm.taobao.org &&  npm install cnpm -g --registry https://registry.npm.taobao.org &&  npm install -g npm-cli-adduser --registry https://registry.npm.taobao.org&&  npm install -g prettier --registry https://registry.npm.taobao.org
+# RUN apt-get update  -y && apt-get install -y git  &&  apt-get install -y vim
+# RUN sudo npm install -g typescript --registry https://registry.npm.taobao.org &&   npm install -g ts-node --registry https://registry.npm.taobao.org &&  npm install cnpm -g --registry https://registry.npm.taobao.org &&  npm install -g npm-cli-adduser --registry https://registry.npm.taobao.org&&  npm install -g prettier --registry https://registry.npm.taobao.org
 WORKDIR /usr/workbench/
 COPY package*.json .
 RUN npm install --registry https://registry.npm.taobao.org   #NODE_ENV=production

@@ -2,6 +2,9 @@ version: '3.1'
 services:
   web-probe:
     platform: linux/amd64
+    build:
+      context: ./
+      dockerfile: Dockerfile
 #    image: yangxiaodong/app_moon-app-auto:latest
     image: yangxiaodong/web-probe:0.0.1-beta.1
     logging:
