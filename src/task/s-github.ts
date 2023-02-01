@@ -3,7 +3,11 @@ import {loadPageSource} from "../util/http";
 import assert from 'node:assert/strict';
 
 /**
- * 未登录场景下采集数据信息;
+ * 从三个静态页面采集指标数据,
+ * 示例:
+ * https://github.com/fathyb/carbonyl
+ * https://github.com/fathyb/carbonyl/issues?q=
+ * https://github.com/fathyb/carbonyl/pulls?q=
  */
 export default class SGithub extends AbsBaseTask {
 
@@ -23,6 +27,11 @@ export default class SGithub extends AbsBaseTask {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done`, result);
         return Promise.resolve(undefined);
     }
+    async uploadData(){
+        //上传指标数据;
+
+    }
+
 
     async getFirstPage() {
         let watchInd, starInd, forkInd, contributorInd, Languages, issueInd, issueOpenInd, issueCloseInd, prInd,

@@ -1,0 +1,23 @@
+version: '3.1'
+services:
+  tax-resource-collector-service:
+    platform: linux/amd64
+    build:
+      context: ./
+      dockerfile: Dockerfile
+#    image: yangxiaodong/app_moon-app-auto:latest
+    image: yangxiaodong/tax-resource-collector-service:0.0.1-beta.9
+    logging:
+      driver: json-file
+      options:
+        max-size: 1g
+    environment:
+      - NODE_ENV=production
+      - APIJSON_HOST=http://10.4.2.55:8888
+      - TZ=Asia/Shanghai
+      - APP_ID=90423
+      - APP_SECRET=d2d3c4fa7c068cf9db8419cb05e421901693ed75
+    ports:
+      - "9229:9229"
+    volumes:
+      - ./logs:/root/logs

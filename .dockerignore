@@ -1,0 +1,12 @@
+node_modules
+bin
+build
+declarations
+typpings
+target
+*.class
+logs
+.idea
+.vscode
+temp
+**/.git/**

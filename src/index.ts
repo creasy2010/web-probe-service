@@ -1,8 +1,19 @@
 import puppeteer from 'puppeteer';
 import {loadPageSource} from "./util/http";
 import buildTask from "./task/task-build";
+import SGithubRepoList from "./task/s-github-repo-list";
 
 (async () => {
+
+
+    await new SGithubRepoList({}).run();
+    return;
+
+    // todo dong 2023/2/1 先写死处理;
+    let repoList = [
+        
+    ];
+
    await  buildTask('SGithub',{
        github:'https://github.com/fathyb/carbonyl',
    }).run();
