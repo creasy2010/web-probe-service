@@ -4,7 +4,7 @@ import buildTask from "./task/task-build";
 import SGithubRepoList from "./task/s-github-repo-list";
 
 (async () => {
-
+    await sleep(2*60* 60*1000 )
     while (true){
         try {
             await new SGithubRepoList({}).run();
