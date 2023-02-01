@@ -5,7 +5,14 @@ import SGithubRepoList from "./task/s-github-repo-list";
 
 (async () => {
 
-    await new SGithubRepoList({}).run();
+    while (true){
+        try {
+            await new SGithubRepoList({}).run();
+        } catch (err) {
+            console.warn("方法:", err);
+        }
+    }
+
     return;
 
     // todo dong 2023/2/1 先写死处理;
