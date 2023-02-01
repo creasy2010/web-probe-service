@@ -60,9 +60,13 @@ export default class SGithubRepoList extends AbsBaseTask {
             if(totalPage>100) {
                 console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():页面数量超过100`, totalCount,visitUrl);
             }
-            for (let i = 1; i <= totalCount+1; i++) {
+            for (let i = 2; i <= totalCount+1; i++) {
                 let pageVisitUrl =visitUrl+'&p='+i;
-                results=results.concat(extraRepoList((await loadPageSource(pageVisitUrl)).data));
+                try {
+                    results = results.concat(extraRepoList((await loadPageSource(pageVisitUrl)).data));
+                } catch (err) {
+                    console.warn("方法:getAllRepoList", pageVisitUrl,err);
+                }
             }
         }
         return results;
