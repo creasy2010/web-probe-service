@@ -58,7 +58,7 @@ export default class SGithubRepoList extends AbsBaseTask {
         // https://github.com/fathyb/carbonyl/pulls?q=
         //时间范围的
         // https://github.com/search?q=created%3A%3E2020-01-01+created%3A%3C2021-01-01+stars%3A100..500&type=Repositories&ref=advsearch&l=&l=
-        let visitUrl =`https://github.com/search?q=stars%3A{condition.fromStart}..${condition.toStart}+pushed%3A%3E${searbegTime}&type=Repositories&ref=advsearch`
+        let visitUrl =`https://github.com/search?q=stars%3A${condition.fromStart}..${condition.toStart}+pushed%3A%3E${searbegTime}&type=Repositories&ref=advsearch`
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
        console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():访问第一页`, visitUrl);
