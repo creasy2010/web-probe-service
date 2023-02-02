@@ -8,6 +8,8 @@ import {sleep} from "../index";
 let filePath =path.join(__dirname,"../../existRepo.json")
 const repoList:string[]  =fse.readJSONSync(filePath);
 
+const minitueUnit = 60*1000;
+const sleepTimePerReq=0.5*minitueUnit;
 
 /**
  * 获取github库信息;
@@ -23,19 +25,21 @@ export default class SGithubRepoList extends AbsBaseTask {
 
     async run(): Promise<void> {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
-        let items = await this.getAllRepoList({
-            fromStart:100,
-            toStart:120
-        });
-        for (let i = 0, iLen = items.length; i < iLen; i++) {
-            let item = items[i];
-            if(!repoList.includes(item)){
-                console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():新增库`, );
-                repoList.push(item);
+        // 这个数据入库;
+        for (let startStar = 100 ;startStar < 10000; startStar++) {
+            let items = await this.getAllRepoList({
+                fromStart:startStar,
+                toStart:startStar+2
+            });
+            for (let i = 0, iLen = items.length; i < iLen; i++) {
+                let item = items[i];
+                if(!repoList.includes(item)) {
+                    // console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():新增库`, item);
+                    repoList.push(item);
+                }
             }
+            console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}`,repoList.join(','));
         }
-        console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done`);
-        fse.writeJSONSync(filePath,repoList);
         return Promise.resolve(undefined);
     }
 
@@ -62,7 +66,7 @@ export default class SGithubRepoList extends AbsBaseTask {
                 console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():页面数量超过100`, totalCount,visitUrl);
             }
             for (let i = 2; i <= totalPage+1; i++) {
-                await  sleep(3*60*1000);
+                await  sleep(sleepTimePerReq);
                 console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():分页获取 ${i}/${totalPage}`, visitUrl);
                 if(i>100) {
                     break;
