@@ -76,7 +76,7 @@ export default class SGithubRepoList extends AbsBaseTask {
         if(condition.dateRange){
             visitUrl=`https://github.com/search?q=created%3A%3E${condition.dateRange.from}+created%3A%3C${condition.dateRange.to}+stars%3A${condition.fromStart}..${condition.toStart}&type=Repositories&ref=advsearch`
         }else if(condition.createdAt){
-            visitUrl=`https://github.com/search?q=created%3A${condition.createdAt}stars%3A${condition.fromStart}..${condition.toStart}&type=Repositories&ref=advsearch`
+            visitUrl=`https://github.com/search?q=created%3A${condition.createdAt}+stars%3A${condition.fromStart}..${condition.toStart}&type=Repositories&ref=advsearch`
         }
 
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
