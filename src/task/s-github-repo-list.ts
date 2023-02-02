@@ -61,6 +61,7 @@ export default class SGithubRepoList extends AbsBaseTask {
         let visitUrl =`https://github.com/search?q=stars%3A{condition.fromStart}..${condition.toStart}+pushed%3A%3E${searbegTime}&type=Repositories&ref=advsearch`
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
+       console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():访问第一页`, visitUrl);
         let resulto = await loadPageSource(visitUrl,{tryCount:3,waitTime:minitueUnit});
         if (resulto.data) {
             let totalStr = getSniptHtml('repository results', resulto.data, {
