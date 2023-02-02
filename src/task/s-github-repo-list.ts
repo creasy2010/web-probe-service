@@ -77,7 +77,7 @@ export default class SGithubRepoList extends AbsBaseTask {
                 }
                 let pageVisitUrl =visitUrl+'&p='+i;
                 try {
-                    results = results.concat(extraRepoList((await loadPageSource(pageVisitUrl,{tryCount:3})).data));
+                    results = results.concat(extraRepoList((await loadPageSource(pageVisitUrl,{tryCount:3,waitTime:sleepTimePerReq})).data));
                 } catch (err) {
                     console.warn("方法:getAllRepoList", pageVisitUrl,err);
                 }

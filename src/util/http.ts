@@ -16,16 +16,16 @@ export async function loadPageSource(pageUrl: string, param?: { tryCount?: numbe
             tryCount--;
         } catch (err) {
             lastError=err;
-            console.warn(`load page source error,try again:[${tryCount}]`, pageUrl);
             tryCount--;
+            console.warn(`load page source error,try again:[${tryCount}]`, pageUrl);
         }
         await sleep(param.waitTime);
     }
     // let response = await  axios.get(pageUrl,{timeout:40000});
 
     if (response?.status != 200) {
-        throw new Error(`load page source error`)
         console.error(`${new Date().toLocaleTimeString()} src/util/http.ts:loadPageSource():`,lastError );
+        throw new Error(`load page source error`)
     }
     return response;
 }
