@@ -52,7 +52,7 @@ export default class SGithubRepoList extends AbsBaseTask {
         // https://github.com/fathyb/carbonyl/pulls?q=
         let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
-        let resulto = await loadPageSource(visitUrl);
+        let resulto = await loadPageSource(visitUrl,{tryCount:3});
         if (resulto.data) {
             let totalStr = getSniptHtml('repository results', resulto.data, {
                 before: 30,
@@ -63,17 +63,17 @@ export default class SGithubRepoList extends AbsBaseTask {
             // todo dong 2023/2/1 other page
             let totalPage =totalCount/10
             if(totalPage>100) {
-                console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():页面数量超过100`, totalCount,visitUrl);
+                console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():页面数量超过100`, totalPage,visitUrl);
             }
             for (let i = 2; i <= totalPage+1; i++) {
                 await  sleep(sleepTimePerReq);
-                console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():分页获取 ${i}/${totalPage}`, visitUrl);
+                console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():准备获取分页 ${i}/${totalPage}`, visitUrl);
                 if(i>100) {
                     break;
                 }
                 let pageVisitUrl =visitUrl+'&p='+i;
                 try {
-                    results = results.concat(extraRepoList((await loadPageSource(pageVisitUrl)).data));
+                    results = results.concat(extraRepoList((await loadPageSource(pageVisitUrl,{tryCount:3})).data));
                 } catch (err) {
                     console.warn("方法:getAllRepoList", pageVisitUrl,err);
                 }
