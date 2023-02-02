@@ -29,18 +29,22 @@ export default class SGithubRepoList extends AbsBaseTask {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
         // 这个数据入库;
         for (let startStar = 100 ;startStar < 10000; startStar++) {
-            let items = await this.getAllRepoList({
-                fromStart:startStar,
-                toStart:startStar+1
-            });
-            for (let i = 0, iLen = items.length; i < iLen; i++) {
-                let item = items[i];
-                if(!repoList.includes(item)) {
-                    // console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():新增库`, item);
-                    repoList.push(item);
+            try {
+                let items = await this.getAllRepoList({
+                    fromStart: startStar,
+                    toStart: startStar + 1
+                });
+                for (let i = 0, iLen = items.length; i < iLen; i++) {
+                    let item = items[i];
+                    if (!repoList.includes(item)) {
+                        // console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():新增库`, item);
+                        repoList.push(item);
+                    }
                 }
+                console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}`, repoList.join(','));
+            } catch (err) {
+                console.warn("方法:run", err);
             }
-            console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}`,repoList.join(','));
         }
         return Promise.resolve(undefined);
     }
@@ -52,7 +56,8 @@ export default class SGithubRepoList extends AbsBaseTask {
         let results:string[] = [];
         // https://github.com/fathyb/carbonyl/issues?q=
         // https://github.com/fathyb/carbonyl/pulls?q=
-
+        //时间范围的
+        // https://github.com/search?q=created%3A%3E2020-01-01+created%3A%3C2021-01-01+stars%3A100..500&type=Repositories&ref=advsearch&l=&l=
         let visitUrl =`https://github.com/search?q=stars%3A{condition.fromStart}..${condition.toStart}+pushed%3A%3E${searbegTime}&type=Repositories&ref=advsearch`
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
@@ -62,10 +67,11 @@ export default class SGithubRepoList extends AbsBaseTask {
                 before: 30,
                 after:20
             });
+            assert.strictEqual(totalStr.length, 1);
+
             let totalCount = parseInt( totalStr[0].match(/h3>([\s\S]*)repository results/)[1].trim().replaceAll(",",""));
             results=results.concat(extraRepoList(resulto.data));
-            // todo dong 2023/2/1 other page
-            let totalPage =totalCount/10
+            let totalPage =totalCount/10;
             if(totalPage>100) {
                 console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():页面数量超过100`, totalPage,visitUrl);
             }
