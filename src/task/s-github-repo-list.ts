@@ -31,15 +31,17 @@ export default class SGithubRepoList extends AbsBaseTask {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
         // 这个数据入库;
         let now=new Date();
-        const stepAdd =3*dateMsUnit;
-        for (let startStar = 100 ;startStar < 10000; startStar++) {
+        const stepAdd =dateMsUnit;
+        const starStep=5;
+        for (let startStar = 100 ;startStar < 10000; startStar+=starStep) {
             for (let date = searbegTime; date <= now; date= new Date(date.getTime() + stepAdd)){
                 let dateRange  = getFromToFromDate(date,stepAdd);
                 try {
                     let items = await this.getAllRepoList({
                         fromStart: startStar,
                         toStart: startStar + 1,
-                        dateRange
+                        createdAt:dateRange.from,
+                        // dateRange
                     });
                     for (let i = 0, iLen = items.length; i < iLen; i++) {
                         let item = items[i];
@@ -47,7 +49,7 @@ export default class SGithubRepoList extends AbsBaseTask {
                             newAddList.push(item);
                         }
                     }
-                    console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}`,dateRange, newAddList.join(','));
+                    console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}`, newAddList.join(','));
                 } catch (err) {
                     console.warn("方法:run", err);
                 }
@@ -59,6 +61,7 @@ export default class SGithubRepoList extends AbsBaseTask {
     async getAllRepoList(condition:{
         fromStart?:number;
         toStart?:number;
+        createdAt?:string;//2020-01-01
         dateRange?:{
             from:string;//2020-01-01
             to:string;//2020-01-01
@@ -70,19 +73,24 @@ export default class SGithubRepoList extends AbsBaseTask {
         //时间范围的
         //
         let visitUrl =`https://github.com/search?q=stars%3A${condition.fromStart}..${condition.toStart}+pushed%3A%3E${searbegTime}&type=Repositories&ref=advsearch`
-
         if(condition.dateRange){
             visitUrl=`https://github.com/search?q=created%3A%3E${condition.dateRange.from}+created%3A%3C${condition.dateRange.to}+stars%3A${condition.fromStart}..${condition.toStart}&type=Repositories&ref=advsearch`
+        }else if(condition.createdAt){
+            visitUrl=`https://github.com/search?q=created%3A${condition.createdAt}stars%3A${condition.fromStart}..${condition.toStart}&type=Repositories&ref=advsearch`
         }
+
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
        console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():访问第一页`, visitUrl);
-        let resulto = await loadPageSource(visitUrl,{tryCount:3,waitTime:minitueUnit});
+        let resulto = await loadPageSource(visitUrl,{tryCount:3,waitTime:sleepTimePerReq});
         if (resulto.data) {
             let totalStr = getSniptHtml('repository results', resulto.data, {
                 before: 30,
                 after:20
             });
+            if(totalStr.length===0){
+                return results;
+            }
             assert.strictEqual(totalStr.length, 1);
 
             let totalCount = parseInt( totalStr[0].match(/h3>([\s\S]*)repository results/)[1].trim().replaceAll(",",""));
