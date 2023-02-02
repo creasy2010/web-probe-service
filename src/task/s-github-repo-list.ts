@@ -10,8 +10,10 @@ const repoList:string[]  =fse.readJSONSync(filePath);
 
 const minitueUnit = 60*1000;
 const sleepTimePerReq=0.5*minitueUnit;
-const searbegTime = '2020-01-01';
+const searbegTime = new Date(new Date().getFullYear()-2,0,0);
 
+const newAddList = [];
+const dateMsUnit=24 * 60 * 60 * 1000;
 /**
  * 获取github库信息;
  * 搜索条件构造;
@@ -28,22 +30,27 @@ export default class SGithubRepoList extends AbsBaseTask {
     async run(): Promise<void> {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
         // 这个数据入库;
+        let now=new Date();
+        const stepAdd =3*dateMsUnit;
         for (let startStar = 100 ;startStar < 10000; startStar++) {
-            try {
-                let items = await this.getAllRepoList({
-                    fromStart: startStar,
-                    toStart: startStar + 1
-                });
-                for (let i = 0, iLen = items.length; i < iLen; i++) {
-                    let item = items[i];
-                    if (!repoList.includes(item)) {
-                        // console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():新增库`, item);
-                        repoList.push(item);
+            for (let date = searbegTime; date <= now; date= new Date(date.getTime() + stepAdd)){
+                let dateRange  = getFromToFromDate(date,stepAdd);
+                try {
+                    let items = await this.getAllRepoList({
+                        fromStart: startStar,
+                        toStart: startStar + 1,
+                        dateRange
+                    });
+                    for (let i = 0, iLen = items.length; i < iLen; i++) {
+                        let item = items[i];
+                        if (!repoList.includes(item) && !newAddList.includes(item)) {
+                            newAddList.push(item);
+                        }
                     }
+                    console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}`,dateRange, newAddList.join(','));
+                } catch (err) {
+                    console.warn("方法:run", err);
                 }
-                console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}`, repoList.join(','));
-            } catch (err) {
-                console.warn("方法:run", err);
             }
         }
         return Promise.resolve(undefined);
@@ -52,13 +59,21 @@ export default class SGithubRepoList extends AbsBaseTask {
     async getAllRepoList(condition:{
         fromStart?:number;
         toStart?:number;
+        dateRange?:{
+            from:string;//2020-01-01
+            to:string;//2020-01-01
+        }
     }):Promise<string[]>{
         let results:string[] = [];
         // https://github.com/fathyb/carbonyl/issues?q=
         // https://github.com/fathyb/carbonyl/pulls?q=
         //时间范围的
-        // https://github.com/search?q=created%3A%3E2020-01-01+created%3A%3C2021-01-01+stars%3A100..500&type=Repositories&ref=advsearch&l=&l=
+        //
         let visitUrl =`https://github.com/search?q=stars%3A${condition.fromStart}..${condition.toStart}+pushed%3A%3E${searbegTime}&type=Repositories&ref=advsearch`
+
+        if(condition.dateRange){
+            visitUrl=`https://github.com/search?q=created%3A%3E${condition.dateRange.from}+created%3A%3C${condition.dateRange.to}+stars%3A${condition.fromStart}..${condition.toStart}&type=Repositories&ref=advsearch`
+        }
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
        console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():访问第一页`, visitUrl);
@@ -146,4 +161,13 @@ function getSniptHtml(flag: string | RegExp, html: string, param: {
     // startInd = startInd-param.before;
     // endInd = endInd+param.after;
     // return html.substring(startInd,endInd);
+}
+
+
+function getFromToFromDate(fromDate:Date,addms:number):{from:string;to:string} {
+    return {
+        from:fromDate.toISOString().split("T")[0],
+        to:new Date(fromDate.getTime() + addms).toISOString().split("T")[0]
+
+    }
 }
