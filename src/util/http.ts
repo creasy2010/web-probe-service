@@ -1,8 +1,9 @@
 import axios from 'axios';
+import {sleep} from "../index";
 
 const loadPageTimeout = 20 * 1000;
 
-export async function loadPageSource(pageUrl: string, param?: { tryCount: number }) {
+export async function loadPageSource(pageUrl: string, param?: { tryCount?: number;waitTime?:number }) {
     let tryCount = param?.tryCount || 1;
     let response: any,lastError;
 
@@ -14,9 +15,11 @@ export async function loadPageSource(pageUrl: string, param?: { tryCount: number
             }
             tryCount--;
         } catch (err) {
-            console.log(`load page source error,try again:[${tryCount}]`, pageUrl, err);
+            lastError=err;
+            console.warn(`load page source error,try again:[${tryCount}]`, pageUrl);
             tryCount--;
         }
+        await sleep(param.waitTime);
     }
     // let response = await  axios.get(pageUrl,{timeout:40000});
 
@@ -24,7 +27,6 @@ export async function loadPageSource(pageUrl: string, param?: { tryCount: number
         throw new Error(`load page source error`)
         console.error(`${new Date().toLocaleTimeString()} src/util/http.ts:loadPageSource():`,lastError );
     }
-
     return response;
 }
 

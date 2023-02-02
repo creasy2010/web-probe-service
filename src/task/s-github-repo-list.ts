@@ -29,7 +29,7 @@ export default class SGithubRepoList extends AbsBaseTask {
         for (let startStar = 100 ;startStar < 10000; startStar++) {
             let items = await this.getAllRepoList({
                 fromStart:startStar,
-                toStart:startStar+2
+                toStart:startStar+1
             });
             for (let i = 0, iLen = items.length; i < iLen; i++) {
                 let item = items[i];
@@ -52,7 +52,7 @@ export default class SGithubRepoList extends AbsBaseTask {
         // https://github.com/fathyb/carbonyl/pulls?q=
         let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
-        let resulto = await loadPageSource(visitUrl,{tryCount:3});
+        let resulto = await loadPageSource(visitUrl,{tryCount:3,waitTime:minitueUnit});
         if (resulto.data) {
             let totalStr = getSniptHtml('repository results', resulto.data, {
                 before: 30,
