@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
  * https://github.com/fathyb/carbonyl/pulls?q=
  */
 export default class SGithub extends AbsBaseTask {
+    key="SGithub";
 
     constructor(public taskInfo: {
         github: string;

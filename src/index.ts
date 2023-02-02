@@ -74,8 +74,10 @@ import SGithubRepoList from "./task/s-github-repo-list";
     await browser.close();
 })();
 
-export async function sleep(ms=1000){
-    console.info(`${new Date().toLocaleTimeString()} src/index.ts:sleep():`, ms);
+export async function sleep(ms=1000,info?:string){
+    if(info){
+        console.info(`${new Date().toLocaleTimeString()} sleep :${info}`, ms);
+    }
     return new Promise((resolve,reject)=>{
         setTimeout(resolve,ms)
     })

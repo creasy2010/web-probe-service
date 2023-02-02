@@ -22,7 +22,6 @@ export async function loadPageSource(pageUrl: string, param?: { tryCount?: numbe
         await sleep(param.waitTime);
     }
     // let response = await  axios.get(pageUrl,{timeout:40000});
-
     if (response?.status != 200) {
         console.error(`${new Date().toLocaleTimeString()} src/util/http.ts:loadPageSource():`,lastError );
         throw new Error(`load page source error`)
