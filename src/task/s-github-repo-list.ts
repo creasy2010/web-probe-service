@@ -10,9 +10,11 @@ const repoList:string[]  =fse.readJSONSync(filePath);
 
 const minitueUnit = 60*1000;
 const sleepTimePerReq=0.5*minitueUnit;
+const searbegTime = '2020-01-01';
 
 /**
  * 获取github库信息;
+ * 搜索条件构造;
  * https://github.com/search/advanced
  */
 export default class SGithubRepoList extends AbsBaseTask {
@@ -50,7 +52,9 @@ export default class SGithubRepoList extends AbsBaseTask {
         let results:string[] = [];
         // https://github.com/fathyb/carbonyl/issues?q=
         // https://github.com/fathyb/carbonyl/pulls?q=
-        let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
+
+        let visitUrl =`https://github.com/search?q=stars%3A{condition.fromStart}..${condition.toStart}+pushed%3A%3E${searbegTime}&type=Repositories&ref=advsearch`
+        // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
         let resulto = await loadPageSource(visitUrl,{tryCount:3,waitTime:minitueUnit});
         if (resulto.data) {

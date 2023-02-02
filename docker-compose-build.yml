@@ -6,7 +6,7 @@ services:
       context: ./
       dockerfile: Dockerfile
 #    image: yangxiaodong/app_moon-app-auto:latest
-    image: yangxiaodong/web-probe:0.0.1-beta.9
+    image: yangxiaodong/web-probe:0.0.1-beta.10
     logging:
       driver: json-file
       options:
