@@ -49,14 +49,21 @@ export default class SGithubRepoList extends AbsBaseTask {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
         let repoList  =[];
         const nameIdMap:{[name:string]:number}={};
-        (await api.gitHubRepo.queryAll({'@column':"name"})).forEach(item=>{
+        let dupIds= [];
+        (await api.gitHubRepo.queryAll({'@column':"name,id"})).forEach(item=>{
             nameIdMap[item.name]=item.id;
                 if(repoList.includes(item.name)){
-                    throw new Error(`数据库中包含重复数据:${item.name}`)
+                    dupIds.push(item.id);
                  }else{
                     repoList.push(item.name)
                 }
         });
+
+        if(dupIds.length>0){
+            console.info(`delete ZMMResourceChangeRecord where id in (${dupIds.join(",")}) ` );
+            throw new Error(`数据库中包含重复数据 id:${dupIds.join(",")}`);
+        }
+
         // debugger;
         // 这个数据入库;
         let now=new Date();
@@ -95,19 +102,20 @@ export default class SGithubRepoList extends AbsBaseTask {
                         if (!repoList.includes(item.name) ) {
                             newAddList.push(item);
                         } else {
-                            try {
-                                // todo dong 2023/2/3 
-                                //检测变化,变化才更新;
-                                await api.gitHubRepo.update({
-                                    id: nameIdMap[item.name],
-                                    starts: item.starts,
-                                    language: item.language,
-                                    descInfo: item.descInfo,
-                                    lastCommitDate: item.lastCommitDate,
-                                });
-                            } catch (err) {
-                                console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():update repo error`, err);
-                            }
+                            // try {
+                            //     // todo dong 2023/2/3
+                            //  let exist =   await  api.gitHubRepo.get(nameIdMap[item.name]);
+                            //     //检测变化,变化才更新;
+                            //     await api.gitHubRepo.update({
+                            //         id: nameIdMap[item.name],
+                            //         starts: item.starts,
+                            //         language: item.language,
+                            //         descInfo: item.descInfo,
+                            //         lastCommitDate: item.lastCommitDate,
+                            //     });
+                            // } catch (err) {
+                            //     console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():update repo error`, err);
+                            // }
                             // api.gitHubRepo.update()
                         }
                     }
