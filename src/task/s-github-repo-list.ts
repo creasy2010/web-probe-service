@@ -160,7 +160,11 @@ export default class SGithubRepoList extends AbsBaseTask {
             }
             assert.strictEqual(totalStr.length, 1);
 
-            let totalCount = parseInt( totalStr[0].match(/h3>([\s\S]*)repository results/)[1].trim().replaceAll(",",""));
+            let totalMatch = totalStr[0].match(/h3>([\s\S]*)repository results/);
+            if(!totalMatch && totalStr[0].includes("Showing")){
+                totalMatch=totalStr[0].match(/Showing ?(\s\S*) ?available repository results/)
+            }
+            let totalCount = parseInt(totalMatch[1].trim().replaceAll(",",""));
             results=results.concat(extraRepoList(resulto.data));
             let totalPage =Math.ceil(totalCount/10);
 

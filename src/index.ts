@@ -4,10 +4,13 @@ import buildTask from "./task/task-build";
 import SGithubRepoList from "./task/s-github-repo-list";
 
 (async () => {
-    try {
-        await new SGithubRepoList({}).run();
-    } catch (err) {
-        console.warn("方法:", err);
+    while(true){
+        try {
+            await new SGithubRepoList({}).run();
+        } catch (err) {
+            console.warn("方法:", err);
+        }
+        //采集单个库的;
     }
     return;
     // todo dong 2023/2/1 先写死处理;
