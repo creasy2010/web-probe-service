@@ -3,7 +3,7 @@ services:
   web-probe:
 #    platform: linux/amd64
 #    image: yangxiaodong/app_moon-app-auto:latest
-    image: yangxiaodong/web-probe:0.0.1-beta.15
+    image: yangxiaodong/web-probe:0.0.1-beta.16
     logging:
       driver: json-file
       options:
