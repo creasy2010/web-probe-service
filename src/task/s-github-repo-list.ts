@@ -7,30 +7,26 @@ import {sleep} from "../index";
 import {toFanyiUrl} from "../util/youdaofanyi";
 import LocalStorage from "../service/local-storage";
 import api from "../api";
-
-let filePath =path.join(__dirname,"../../existRepo.json")
-let repoList:string[]  =fse.readJSONSync(filePath);
-let newAddList = [];
-
- api.gitHubRepo.addBatch(repoList.slice(0,3).map(name=>({
-     userId:38710,
-     starts:0,
-     language:"javascript",
-     languages:['a','b','c'],
-     lastCommitDate:new Date(),
-     repoCreateDate:new Date(),
-     name,
- }))).then(res=>{
-     console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:():`, res);
-     debugger
- },(err)=>{
-     console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:():`, err);
-     debugger; 
- })
+ //
+ // api.gitHubRepo.addBatch(repoList.slice(0,3).map(name=>({
+ //     userId:38710,
+ //     starts:0,
+ //     language:"javascript",
+ //     languages:['a','b','c'],
+ //     lastCommitDate:new Date(),
+ //     repoCreateDate:new Date(),
+ //     name,
+ // }))).then(res=>{
+ //     console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:():`, res);
+ //     debugger
+ // },(err)=>{
+ //     console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:():`, err);
+ //     debugger;
+ // })
 
 const minitueUnit = 60*1000;
 const sleepTimePerReq=0.3*minitueUnit;
-const searbegTime = new Date(new Date().getFullYear()-4,0,0);
+const searbegTime = new Date(new Date().getFullYear()-7,0,0);
 
 const dayMsUnit=24 * 60 * 60 * 1000;
 
@@ -51,6 +47,15 @@ export default class SGithubRepoList extends AbsBaseTask {
 
     async run(): Promise<void> {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
+        let repoList  =[];
+        (await api.gitHubRepo.queryAll({'@column':"name"})).forEach(item=>{
+                if(repoList.includes(item.name)){
+                    throw new Error(`数据库中包含重复数据:${item.name}`)
+                 }else{
+                    repoList.push(item.name)
+                }
+        });
+        // debugger;
         // 这个数据入库;
         let now=new Date();
         const stepAdd =dayMsUnit;
@@ -65,7 +70,7 @@ export default class SGithubRepoList extends AbsBaseTask {
             }
         }
 
-        const startKey = this.key+'::startStar',dateKey=this.key+'::startDate';
+        const dateKey=this.key+'::startDate';
         for (let date =( isInit&&getCache(dateKey))? new Date(getCache(dateKey)):searbegTime ; date.getTime() <= now.getTime(); date= new Date(date.getTime() + stepAdd)){
             LocalStorage.setItem(dateKey,date.toISOString().split('T')[0]);
             console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():date`, date);
@@ -73,6 +78,7 @@ export default class SGithubRepoList extends AbsBaseTask {
             // todo dong 2023/2/3 给定一个范围自己检测分区情况;
             // isInit? getCache(startKey,500):500
             for (let startStar =500 ;startStar < 100000; startStar+=starStep) {
+                let newAddList = [];
                 // LocalStorage.setItem(startKey,startStar);
                 isInit=false;
                 try {
@@ -84,26 +90,31 @@ export default class SGithubRepoList extends AbsBaseTask {
                     });
                     for (let i = 0, iLen = items.length; i < iLen; i++) {
                         let item = items[i];
-                        if (!repoList.includes(item) && !newAddList.includes(item)) {
+                        if (!repoList.includes(item.name) ) {
                             newAddList.push(item);
                         }
                     }
                     if(newAddList.length>0){
-                     console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目`, newAddList.join(','));
+                        let newNames =newAddList.map(item=>item.name);
+                     console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目`, newNames.join(','));
+
+                  repoList=repoList.concat(newNames)
+                     while(newAddList.length>0){
+                         // todo dong 2023/2/3 batch只有五个有点夸张了,调整下api
+                         await api.gitHubRepo.addBatch(newAddList.splice(0,5).map(item=>({
+                             userId:38710,
+                             name:item.name,
+                             starts:item.starts,
+                             language:item.language,
+                             descInfo:item.descInfo,
+                             languages:[],
+                             lastCommitDate:item.lastCommitDate,
+                             repoCreateDate:date,
+                         })));
+                     }
                     }
                 } catch (err) {
                     console.warn("方法:run", err);
-                }
-
-                await api.gitHubRepo.addBatch([{
-                    userId:38710,
-                    name:"",
-                }])
-                try {
-                   fse.writeJSONSync(filePath,repoList);
-                    repoList=repoList.concat(newAddList)
-                    newAddList=[];
-                } catch (err) {
                 }
                 await  sleep(sleepTimePerReq,"date handle wait");
             }
@@ -121,8 +132,8 @@ export default class SGithubRepoList extends AbsBaseTask {
             from:string;//2020-01-01
             to:string;//2020-01-01
         }
-    }):Promise<string[]>{
-        let results:string[] = [];
+    }):Promise<IRepoItem[]>{
+        let results:IRepoItem[] = [];
         // https://github.com/fathyb/carbonyl/issues?q=
         // https://github.com/fathyb/carbonyl/pulls?q=
         //时间范围的
@@ -176,12 +187,30 @@ export default class SGithubRepoList extends AbsBaseTask {
     }
 }
 
-function extraRepoList(pageContent:string) {
+function extraRepoList(pageContent:string):IRepoItem[] {
+
     let items = getSniptHtml('mt-n1 flex-auto', pageContent, {
-        afterFlag: "</a>"
+        afterFlag: "</li>"
     });
-    // return items.map(item=>item.match(/href="(.*)"/)[1]);
-    return items.map(item=>item.match(/">(.*)<\/a>/)[1]);
+
+   return  items.map(item=>{
+       try {
+           let startMatch= item.match(/<\/svg> ?([\d.]+) ?k?.?<\/a>/), starts=parseFloat(startMatch[1]);
+           if(startMatch[0].includes("k")){
+               starts=starts*1000
+           }
+           return {
+               name:item.match(/">(.*)<\/a>/)[1],
+               starts,
+               descInfo: item.match(/<p class="mb-1">([\s\S]*)<\/p>/)?.[1]||"",
+               language:item.match(/programmingLanguage">([^<]*)</)?.[1]||undefined,
+               lastCommitDate:new Date(item.match(/datetime="([^"]*)"/)[1]),
+           }
+       }catch (e) {
+           debugger;
+           throw e;
+       }
+    })
 }
 
 function getSniptHtml(flag: string | RegExp, html: string, param: {
@@ -243,4 +272,14 @@ function getFromToFromDate(fromDate:Date,addms:number):{from:string;to:string} {
         from:fromDate.toISOString().split("T")[0],
         to:new Date(fromDate.getTime() + addms).toISOString().split("T")[0]
     }
+}
+
+
+
+interface IRepoItem{
+    name:string,
+    starts:number,
+    language:string,
+    lastCommitDate:Date,
+    descInfo:string,
 }

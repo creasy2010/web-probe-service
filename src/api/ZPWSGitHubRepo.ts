@@ -484,7 +484,7 @@ export interface IZPWSGitHubRepo {
     name?: string;// 项目名称:
     starts?: number;// start数量:
     language?: string;// 主语言:
-    desc?: string;// 简介:
+    descInfo?: string;// 简介:
     lastCommitDate?: Date;// 最后更新时间:
     repoCreateDate?: Date;// 库创建时间:
     languages?: any;// 项目涉及语言:
