@@ -2,7 +2,15 @@ import * as fse from "fs-extra";
 import * as path from 'path';
 
 let filePath =path.join(__dirname,"../../localStorage.json")
-let storageMap:string[]  =fse.readJSONSync(filePath);
+
+let storageMap:{
+    [key:string]:any;
+}={};
+try {
+      storageMap =fse.readJSONSync(filePath);
+}catch(e){
+
+}
 class LocalStorage {
     constructor() {
     }

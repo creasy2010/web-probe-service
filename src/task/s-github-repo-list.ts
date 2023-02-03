@@ -95,6 +95,7 @@ export default class SGithubRepoList extends AbsBaseTask {
                         }
                     }
                     if(newAddList.length>0){
+                        // todo dong 2023/2/3 存在的话则更新;
                         let newNames =newAddList.map(item=>item.name);
                      console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目`, newNames.join(','));
 
