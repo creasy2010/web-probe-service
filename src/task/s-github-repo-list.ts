@@ -15,7 +15,7 @@ const minitueUnit = 60*1000;
 const sleepTimePerReq=0.5*minitueUnit;
 const searbegTime = new Date(new Date().getFullYear()-2,0,0);
 
-const dateMsUnit=24 * 60 * 60 * 1000;
+const dayMsUnit=24 * 60 * 60 * 1000;
 
 /**
  * 获取github库信息;
@@ -36,8 +36,8 @@ export default class SGithubRepoList extends AbsBaseTask {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
         // 这个数据入库;
         let now=new Date();
-        const stepAdd =dateMsUnit;
-        const starStep=500;
+        const stepAdd =dayMsUnit;
+        const starStep=100000;
         let isInit=true;
         function getCache(key:string,defaultVal?:any) {
             let _c=LocalStorage.getItem(key);
@@ -47,16 +47,22 @@ export default class SGithubRepoList extends AbsBaseTask {
                 return defaultVal;
             }
         }
+        // https://github.com/search?q=created%3A2020-12-30+stars%3A20800..25800&type=Repositories&ref=advsearch
 
         // 7:17:40 PM src/task/s-github-repo-list.ts:getAllRepoList():访问第一页 https://github.com/search?q=created%3A2021-02-01+stars%3A800..1000&type=Repositories&ref=advsearch
         //     7:17:41 PM src/index.ts:sleep(): 30000
+        // https://github.com/search?q=created%3A2023-02-01+stars%3A15800..20800&type=Repositories&ref=advsearch
+        // ^C
+
         const startKey = this.key+'::startStar',dateKey=this.key+'::startDate';
-        for (let startStar = isInit? getCache(startKey,800):800 ;startStar < 10000; startStar+=starStep) {
-            LocalStorage.setItem(startKey,startStar);
-            for (let date = isInit? new Date(getCache(dateKey,searbegTime.getTime())):searbegTime ; date <= now; date= new Date(date.getTime() + stepAdd)){
+        for (let date = isInit? new Date(getCache(dateKey,searbegTime.getTime())):searbegTime ; date.getTime() <= now.getTime(); date= new Date(date.getTime() + stepAdd)){
+            LocalStorage.setItem(dateKey,date.getTime());
+            console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():date`, date);
+            let dateRange  = getFromToFromDate(date,stepAdd);
+            // todo dong 2023/2/3 给定一个范围自己检测分区情况;
+            for (let startStar = isInit? getCache(startKey,800):800 ;startStar < 100000; startStar+=starStep) {
+                LocalStorage.setItem(startKey,startStar);
                 isInit=false;
-                LocalStorage.setItem(dateKey,date.getTime());
-                let dateRange  = getFromToFromDate(date,stepAdd);
                 try {
                     let items = await this.getAllRepoList({
                         fromStart: startStar,
@@ -82,11 +88,19 @@ export default class SGithubRepoList extends AbsBaseTask {
                     newAddList=[];
                 } catch (err) {
                 }
-                await  sleep(sleepTimePerReq);
+                await  sleep(sleepTimePerReq,"date handle wait");
             }
         }
+        console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():这就完事了`, );
         return Promise.resolve(undefined);
     }
+
+    async getRepoList(createdAt?:string):Promise<string[]>{
+
+
+        return  [];
+    }
+
 
     async getAllRepoList(condition:{
         fromStart?:number;
@@ -125,12 +139,13 @@ export default class SGithubRepoList extends AbsBaseTask {
 
             let totalCount = parseInt( totalStr[0].match(/h3>([\s\S]*)repository results/)[1].trim().replaceAll(",",""));
             results=results.concat(extraRepoList(resulto.data));
-            let totalPage =totalCount/10;
+            let totalPage =Math.ceil(totalCount/10);
+
             if(totalPage>100) {
                 console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():页面数量超过100`, totalPage,visitUrl);
             }
-            for (let i = 2; i <= totalPage+1; i++) {
-                await  sleep(sleepTimePerReq);
+            for (let i = 2; i <= totalPage; i++) {
+                await  sleep(sleepTimePerReq,'page request wait');
                 console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():准备获取分页 ${i}/${totalPage}`, visitUrl);
                 if(i>100) {
                     break;

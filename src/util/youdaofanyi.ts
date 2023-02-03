@@ -10,7 +10,11 @@ export function toFanyiUrl(t: string) {
 // debugger;
     let from = 'zh-CHS', to = 'en', type = '1';
     // to='en';
-    var u = "http://webtrans.yodao.com/server/webtrans/tranUrl?url=".concat(encodeURIComponent(t), "&from=").concat(from, "&to=").concat(to, "&type=").concat(type, "&product=mdictweb&salt=").concat(o, "&sign=").concat(l);
+    var u = "http://webtrans.yodao.com/server/webtrans/tranUrl?url=".concat(encodeURIComponent(t), "&from=")
+        .concat(from, "&to=")
+        .concat(to, "&type=")
+        .concat(type, "&product=mdictweb&salt=")
+        .concat(o, "&sign=").concat(l);
     return u;
 }
 
