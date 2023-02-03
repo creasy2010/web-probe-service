@@ -48,7 +48,9 @@ export default class SGithubRepoList extends AbsBaseTask {
     async run(): Promise<void> {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
         let repoList  =[];
+        const nameIdMap:{[name:string]:number}={};
         (await api.gitHubRepo.queryAll({'@column':"name"})).forEach(item=>{
+            nameIdMap[item.name]=item.id;
                 if(repoList.includes(item.name)){
                     throw new Error(`数据库中包含重复数据:${item.name}`)
                  }else{
@@ -92,6 +94,21 @@ export default class SGithubRepoList extends AbsBaseTask {
                         let item = items[i];
                         if (!repoList.includes(item.name) ) {
                             newAddList.push(item);
+                        } else {
+                            try {
+                                // todo dong 2023/2/3 
+                                //检测变化,变化才更新;
+                                await api.gitHubRepo.update({
+                                    id: nameIdMap[item.name],
+                                    starts: item.starts,
+                                    language: item.language,
+                                    descInfo: item.descInfo,
+                                    lastCommitDate: item.lastCommitDate,
+                                });
+                            } catch (err) {
+                                console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():update repo error`, err);
+                            }
+                            // api.gitHubRepo.update()
                         }
                     }
                     if(newAddList.length>0){
