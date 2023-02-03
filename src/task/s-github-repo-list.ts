@@ -6,14 +6,31 @@ import * as fse from  'fs-extra';
 import {sleep} from "../index";
 import {toFanyiUrl} from "../util/youdaofanyi";
 import LocalStorage from "../service/local-storage";
+import api from "../api";
 
 let filePath =path.join(__dirname,"../../existRepo.json")
 let repoList:string[]  =fse.readJSONSync(filePath);
 let newAddList = [];
 
+ api.gitHubRepo.addBatch(repoList.slice(0,3).map(name=>({
+     userId:38710,
+     starts:0,
+     language:"javascript",
+     languages:['a','b','c'],
+     lastCommitDate:new Date(),
+     repoCreateDate:new Date(),
+     name,
+ }))).then(res=>{
+     console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:():`, res);
+     debugger
+ },(err)=>{
+     console.warn(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:():`, err);
+     debugger; 
+ })
+
 const minitueUnit = 60*1000;
-const sleepTimePerReq=0.5*minitueUnit;
-const searbegTime = new Date(new Date().getFullYear()-2,0,0);
+const sleepTimePerReq=0.3*minitueUnit;
+const searbegTime = new Date(new Date().getFullYear()-4,0,0);
 
 const dayMsUnit=24 * 60 * 60 * 1000;
 
@@ -37,7 +54,7 @@ export default class SGithubRepoList extends AbsBaseTask {
         // 这个数据入库;
         let now=new Date();
         const stepAdd =dayMsUnit;
-        const starStep=100000;
+        const starStep=10000000;
         let isInit=true;
         function getCache(key:string,defaultVal?:any) {
             let _c=LocalStorage.getItem(key);
@@ -47,21 +64,16 @@ export default class SGithubRepoList extends AbsBaseTask {
                 return defaultVal;
             }
         }
-        // https://github.com/search?q=created%3A2020-12-30+stars%3A20800..25800&type=Repositories&ref=advsearch
-
-        // 7:17:40 PM src/task/s-github-repo-list.ts:getAllRepoList():访问第一页 https://github.com/search?q=created%3A2021-02-01+stars%3A800..1000&type=Repositories&ref=advsearch
-        //     7:17:41 PM src/index.ts:sleep(): 30000
-        // https://github.com/search?q=created%3A2023-02-01+stars%3A15800..20800&type=Repositories&ref=advsearch
-        // ^C
 
         const startKey = this.key+'::startStar',dateKey=this.key+'::startDate';
-        for (let date = isInit? new Date(getCache(dateKey,searbegTime.getTime())):searbegTime ; date.getTime() <= now.getTime(); date= new Date(date.getTime() + stepAdd)){
-            LocalStorage.setItem(dateKey,date.getTime());
+        for (let date =( isInit&&getCache(dateKey))? new Date(getCache(dateKey)):searbegTime ; date.getTime() <= now.getTime(); date= new Date(date.getTime() + stepAdd)){
+            LocalStorage.setItem(dateKey,date.toISOString().split('T')[0]);
             console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():date`, date);
             let dateRange  = getFromToFromDate(date,stepAdd);
             // todo dong 2023/2/3 给定一个范围自己检测分区情况;
-            for (let startStar = isInit? getCache(startKey,800):800 ;startStar < 100000; startStar+=starStep) {
-                LocalStorage.setItem(startKey,startStar);
+            // isInit? getCache(startKey,500):500
+            for (let startStar =500 ;startStar < 100000; startStar+=starStep) {
+                // LocalStorage.setItem(startKey,startStar);
                 isInit=false;
                 try {
                     let items = await this.getAllRepoList({
@@ -77,11 +89,16 @@ export default class SGithubRepoList extends AbsBaseTask {
                         }
                     }
                     if(newAddList.length>0){
-                     console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}`, newAddList.join(','));
+                     console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目`, newAddList.join(','));
                     }
                 } catch (err) {
                     console.warn("方法:run", err);
                 }
+
+                await api.gitHubRepo.addBatch([{
+                    userId:38710,
+                    name:"",
+                }])
                 try {
                    fse.writeJSONSync(filePath,repoList);
                     repoList=repoList.concat(newAddList)
@@ -91,16 +108,10 @@ export default class SGithubRepoList extends AbsBaseTask {
                 await  sleep(sleepTimePerReq,"date handle wait");
             }
         }
+        LocalStorage.delItem(dateKey);
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():这就完事了`, );
         return Promise.resolve(undefined);
     }
-
-    async getRepoList(createdAt?:string):Promise<string[]>{
-
-
-        return  [];
-    }
-
 
     async getAllRepoList(condition:{
         fromStart?:number;
@@ -121,11 +132,11 @@ export default class SGithubRepoList extends AbsBaseTask {
         }else if(condition.createdAt){
             visitUrl=`https://github.com/search?q=created%3A${condition.createdAt}+stars%3A${condition.fromStart}..${condition.toStart}&type=Repositories&ref=advsearch`
         }
-
+        // visitUrl= toFanyiUrl(visitUrl)
         // visitUrl =`http://webtrans.yodao.com/server/webtrans/tranUrl?from=auto&to=auto&type=1&product=mdictweb&salt=1675327336162&sign=6ba56927ab49ce8e75946dd84dea7525&url=${encodeURI(visitUrl)}`
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A${condition.fromStart}..${condition.toStart}&s=stars&type=Repositories`;
         // let visitUrl =`https://github.com/search?l=&o=desc&q=stars%3A500..1000&s=stars&type=Repositories`;
-       console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():访问第一页`, visitUrl);
+       console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getAllRepoList():访问第一页`, toFanyiUrl(visitUrl),visitUrl,);
         let resulto = await loadPageSource(toFanyiUrl(visitUrl),{tryCount:3,waitTime:sleepTimePerReq});
         if (resulto.data) {
             let totalStr = getSniptHtml('repository results', resulto.data, {
@@ -152,7 +163,8 @@ export default class SGithubRepoList extends AbsBaseTask {
                 }
                 let pageVisitUrl =visitUrl+ encodeURI('&p='+i);
                 try {
-                    results = results.concat(extraRepoList((await loadPageSource(toFanyiUrl(pageVisitUrl),{tryCount:3,waitTime:sleepTimePerReq})).data));
+                    let newResults=extraRepoList((await loadPageSource(toFanyiUrl(pageVisitUrl),{tryCount:3,waitTime:sleepTimePerReq})).data);
+                    results = results.concat(newResults);
                 } catch (err) {
                     console.warn("方法:getAllRepoList", pageVisitUrl,err);
                 }

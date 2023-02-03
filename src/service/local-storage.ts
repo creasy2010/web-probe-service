@@ -11,6 +11,11 @@ class LocalStorage {
         storageMap[key]=value;
         this.autoSave()
     }
+
+    delItem(key:string,){
+        delete storageMap[key];
+        this.autoSave()
+    }
     getItem(key:string){
         return storageMap[key];
     }
