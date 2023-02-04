@@ -26,7 +26,7 @@ import api from "../api";
 
 const minitueUnit = 60*1000;
 const sleepTimePerReq=0.3*minitueUnit;
-const searbegTime = new Date(new Date().getFullYear()-4,0,0);
+const searbegTime = new Date(new Date().getFullYear()-5,0,0);
 
 const dayMsUnit=24 * 60 * 60 * 1000;
 
@@ -50,15 +50,20 @@ export default class SGithubRepoList extends AbsBaseTask {
         let repoList  =[];
         const nameIdMap:{[name:string]:number}={};
         let dupIds= [];
-        (await api.gitHubRepo.queryAll({'@column':"name,id"})).forEach(item=>{
-            nameIdMap[item.name]=item.id;
+
+        //date `YYYY-MM-DD`
+        async function getDayRepo(date:string) {
+            let results  =   (await api.gitHubRepo.queryAll({'@column':"name,id",'repoCreateDate':date}));
+            results.forEach(item=>{
+                nameIdMap[item.name]=item.id;
                 if(repoList.includes(item.name)){
                     dupIds.push(item.id);
-                 }else{
+                }else{
                     repoList.push(item.name)
                 }
-        });
-
+            });
+        }
+        //
         if(dupIds.length>0){
             console.info(`delete ZMMResourceChangeRecord where id in (${dupIds.join(",")}) ` );
             throw new Error(`数据库中包含重复数据 id:${dupIds.join(",")}`);
@@ -81,7 +86,9 @@ export default class SGithubRepoList extends AbsBaseTask {
 
         const dateKey=this.key+'::startDate';
         for (let date =( isInit&&getCache(dateKey))? new Date(getCache(dateKey)):searbegTime ; date.getTime() <= now.getTime(); date= new Date(date.getTime() + stepAdd)){
-            LocalStorage.setItem(dateKey,date.toISOString().split('T')[0]);
+            let dateStr = date.toISOString().split('T')[0];
+            LocalStorage.setItem(dateKey,dateStr);
+            await getDayRepo(dateStr);
             console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():date`, date);
             let dateRange  = getFromToFromDate(date,stepAdd);
             // todo dong 2023/2/3 给定一个范围自己检测分区情况;
