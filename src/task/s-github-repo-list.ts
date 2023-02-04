@@ -225,14 +225,14 @@ function extraRepoList(pageContent:string):IRepoItem[] {
 
    return  items.map(item=>{
        try {
-           let startMatch= item.match(/<\/svg> ?([\d.]+) ?k?.?<\/a>/), starts=parseFloat(startMatch[1]);
-           if(startMatch[0].includes("k")){
+           let startMatch= item.match(/<\/svg> ?([\d.]+) ?k?.?<\/a>/), starts=parseFloat(startMatch?.[1]||"0");
+           if(startMatch?.[0]?.includes("k")){
                starts=starts*1000
            }
            return {
-               name:item.match(/">(.*)<\/a>/)[1],
+               name:item.match(/">(.*)<\/a>/)[1].replaceAll("<em>","").replaceAll("</em>",""),
                starts,
-               descInfo: item.match(/<p class="mb-1">([\s\S]*)<\/p>/)?.[1]||"",
+               descInfo: item.match(/<p class="mb-1">([\s\S]*)<\/p>/)?.[1]?.replaceAll("<em>","").replaceAll("</em>","")||"",
                language:item.match(/programmingLanguage">([^<]*)</)?.[1]||undefined,
                lastCommitDate:new Date(item.match(/datetime="([^"]*)"/)[1]),
            }
@@ -313,3 +313,7 @@ interface IRepoItem{
     lastCommitDate:Date,
     descInfo:string,
 }
+//
+// (async()=>{
+//     console.info(extraRepoList((await loadPageSource(toFanyiUrl('https://github.com/search?q=Vuejs%2Fvue-hackernews-2.0'))).data))
+// })()

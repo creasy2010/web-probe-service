@@ -1,5 +1,6 @@
 {
 	"scripts": {
+		"start:Prod": "ts-node ./src/index-prod.ts",
 		"start": "ts-node ./src/index.ts",
 		"build:docker": "docker-compose -f docker-compose-build.yml down -v && docker-compose -f docker-compose-build.yml build",
 		"start:docker": "docker-compose -f docker-compose.yml down -v && docker-compose  up -d && docker ps",
