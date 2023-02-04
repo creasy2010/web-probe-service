@@ -7,31 +7,14 @@
  * @Date    2022/10/5
  **/
 
-import {System} from './system';
 import httpClient from './http';
-import {Moment} from "./moment";
-import {ZMMResourceTab} from "./ZMMResourceTab";
-import {ZMMResourceUrl} from "./ZMMResourceUrl";
-import {ZMMMirrCaseRecord} from "./ZMMMirrCaseRecord";
-import {ZMMMirrRecord} from "./ZMMMirrRecord";
-import {ZTCTaxMatchRecord} from "./ZTCTaxMatchRecord";
-import {ZMMResourceTabRelUrls} from "./ZMMResourceTabRelUrls";
-import {ZMMResourceWatchNotifyRecord} from "./ZMMResourceWatchNotifyRecord";
-import {ZMMResourceWatchRule} from "./ZMMResourceWatchRule";
-import {ZMMResourceWatchScreen} from "./ZMMResourceWatchScreen";
-import {ZMMResourceChangeRecord} from "./ZMMResourceChangeRecord";
-import {ZMMResourceChangeBlackList} from "./ZMMResourceChangeBlackList";
-import {ZTeamWorkTimeRecord} from "./ZTeamWorkTimeRecord";
-import {ZTeamProjectScan} from "./ZTeamProjectScan";
-import {ZTeamMember} from "./ZTeamMember";
-import {ZTeamGitProjects} from "./ZTeamGitProjects";
-import {ZTeamGitEmailRelMember} from "./ZTeamGitEmailRelMember";
-import {ZTeamCommit} from "./ZTeamCommit";
 import {ZPWSGitHubRepo} from "./ZPWSGitHubRepo";
+import {ZPWSGithubRepoInd} from "./ZPWSGithubRepoInd";
 
 
 const api = {
-    gitHubRepo: ZPWSGitHubRepo.build(httpClient)
+    gitHubRepo: ZPWSGitHubRepo.build(httpClient),
+    gitHubRepoInd: ZPWSGithubRepoInd.build(httpClient)
 };
 
 

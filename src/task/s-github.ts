@@ -1,6 +1,10 @@
 import AbsBaseTask from "./abs-base-task";
 import {loadPageSource} from "../util/http";
 import assert from 'node:assert/strict';
+import {IZPWSGitHubRepo} from "../api/ZPWSGitHubRepo";
+import {sleep} from "../index";
+import {toFanyiUrl} from "../util/youdaofanyi";
+import api from "../api";
 
 /**
  * 从三个静态页面采集指标数据,
@@ -12,20 +16,46 @@ import assert from 'node:assert/strict';
 export default class SGithub extends AbsBaseTask {
     key="SGithub";
 
-    constructor(public taskInfo: {
-        github: string;
-    }) {
+    gitUrl:string;
+
+    constructor(public taskInfo:IZPWSGitHubRepo ) {
         super();
+        this.gitUrl= 'https://github.com/'+taskInfo.name;
     }
 
     async run(): Promise<void> {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():`,);
-        let result = await Promise.all([
-            this.getPrPage(),
-            this.getIssuePage(),
-            this.getFirstPage(),
-        ]);
-        console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done`, result);
+     // let [basic,pr,iss]=   await Promise.all([this.getFirstPage(),this.getPrPage(),this.getIssuePage()])
+       let basic =await this.getFirstPage();
+       // await sleep(1000);
+       let pr = await this.getPrPage();
+       // await sleep(1000);
+       let iss = await this.getIssuePage();
+
+        console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done`, this.taskInfo.name,JSON.stringify({
+            ...basic,
+            ...pr,
+            ...iss,
+        }));
+
+        await api.gitHubRepoInd.add({
+            userId:38710,
+            repoId:this.taskInfo.id,
+            watchInd: basic.watchInd,
+            starInd: basic.starInd,// start人数:
+            forkInd: basic.forkInd,// fork人数:
+            contributorInd: basic.contributorInd,// 参与贡献人数:
+            prOpen: pr.prOpen,// openPr数量:
+            prClosed: pr.prClosed,// closePr数量:
+            issueClosed: iss.issueClosed,// 关闭问题数量:
+            issueOpen: iss.issueOpen,// 开启问题数量:
+        });
+        api.gitHubRepo.update({
+            id:this.taskInfo.id,
+            starts:basic.starInd,
+            lastIndProbeDate:new Date(),
+            languages:basic.Languages,
+        })
         return Promise.resolve(undefined);
     }
     async uploadData(){
@@ -39,9 +69,9 @@ export default class SGithub extends AbsBaseTask {
             prOpenInd, prCloseInd;
         // https://github.com/fathyb/carbonyl/issues?q=
         // https://github.com/fathyb/carbonyl/pulls?q=
-        let resulto = await loadPageSource(this.taskInfo.github);
+        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl),{tryCount:3,waitTime:15000});
         if (resulto.data) {
-            let watchStr = getSniptHtml('/fathyb/carbonyl/watchers', resulto.data, {
+            let watchStr = getSniptHtml('Watchers</h3>', resulto.data, {
                 afterFlag: "watching"
             });
             assert.strictEqual(watchStr.length, 1);
@@ -61,7 +91,7 @@ export default class SGithub extends AbsBaseTask {
             let languagesStrs = getSniptHtml('color-fg-default text-bold mr-1', resulto.data, {
                 afterFlag: "</a>"
             });
-            assert.strictEqual(languagesStrs.length > 0, true);
+            // assert.strictEqual(languagesStrs.length > 0, true);
             let Languages = languagesStrs.reduce((acc, next) => {
                 let matchResult = next.match(/>(.*)<\/span>[\s\S]*<span>(.*)<\/span/)
                 acc.push({
@@ -75,7 +105,7 @@ export default class SGithub extends AbsBaseTask {
                 afterFlag: "</span>"
             });
             assert.strictEqual(contributorStr.length, 1);
-            contributorInd = contributorStr[0].match(/title="([\d,]+)"/)[1].replace(',', "");
+            contributorInd = parseInt(contributorStr[0].match(/title="([\d,]+)"/)[1].replace(',', ""));
             return {
                 watchInd, starInd, forkInd, Languages, contributorInd
             }
@@ -84,17 +114,17 @@ export default class SGithub extends AbsBaseTask {
 
     async getIssuePage() {
         // https://github.com/fathyb/carbonyl/issues?q=
-        let resulto = await loadPageSource(this.taskInfo.github + "/issues?q=");
+        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl + "/issues?q="),{tryCount:3,waitTime:15000});
         if (resulto.data) {
             let issueStr = getSniptHtml('table-list-header-toggle states flex-auto pl-0', resulto.data, {
                 afterFlag: "</div>"
             });
 
-            let matchresult = issueStr[0].match(/(\d+) Open[\s\S]* (\d+) Closed/)
+            let matchresult = issueStr[0].match(/<\/svg> ([\s\S]+) Open[\s\S]* ([\s\S]+) Closed/)
             assert.strictEqual(issueStr.length >= 1, true);
             return {
-                issueOpen: matchresult[1],
-                issueClosed: matchresult[2]
+                issueOpen: parseInt(matchresult[1].replace(",","")),
+                issueClosed: parseInt(matchresult[2].replace(",",""))
             }
             // watchInd = watchStr[0].match(/strong>(\d+)/)[1];
         }
@@ -103,17 +133,23 @@ export default class SGithub extends AbsBaseTask {
 
     async getPrPage() {
         // https://github.com/fathyb/carbonyl/pulls?q=
-        let resulto = await loadPageSource(this.taskInfo.github + "/pulls?q=");
+        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl + "/pulls?q="),{tryCount:3,waitTime:15000});
         if (resulto.data) {
             let prStr = getSniptHtml('table-list-header-toggle states flex-auto pl-0', resulto.data, {
                 afterFlag: "</div>"
             });
+            if(prStr.length==0){
+                debugger;
+            }
             assert.strictEqual(prStr.length >= 1, true);
-            let matchresult = prStr[0].match(/(\d+) Open[\s\S]* (\d+) Closed/)
+            let matchresult = prStr[0].match(/(\d+) Open[\s\S]* ([\s\S]+) Closed/)
             assert.strictEqual(prStr.length >= 1, true);
+            if(!matchresult){
+                debugger;
+            }
             return {
-                prOpen: matchresult[1],
-                prClosed: matchresult[2]
+                prOpen: parseInt(matchresult[1].replace(",","")),
+                prClosed: parseInt(matchresult[2].replace(",",""))
             }
             debugger;
             // watchInd = watchStr[0].match(/strong>(\d+)/)[1];
@@ -128,6 +164,9 @@ function getSniptHtml(flag: string | RegExp, html: string, param: {
     after?: number,
 } = {before: 0, after: 200}): string[] {
     let flagIndex, result = [], positionIndex = -1;
+    if(!html || typeof html != "string"){
+        debugger;
+    }
 
     function getNextFlagIndex() {
         if (typeof flag == "string") {

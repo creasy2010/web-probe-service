@@ -50,6 +50,13 @@ export class ZPWSGitHubRepo {
 
 
         //@ts-ignore
+        if (colInfo["lastIndProbeDate"] && colInfo["lastIndProbeDate"].toLocaleString) {
+            //@ts-ignore
+            colInfo["lastIndProbeDate"] = `${colInfo["lastIndProbeDate"].getFullYear()}-${colInfo["lastIndProbeDate"].getMonth() + 1}-${colInfo["lastIndProbeDate"].getDate()} ${colInfo["lastIndProbeDate"].getHours()}:${colInfo["lastIndProbeDate"].getMinutes()}:${colInfo["lastIndProbeDate"].getSeconds()}`;
+        }
+
+
+        //@ts-ignore
         if (colInfo["repoCreateDate"] && colInfo["repoCreateDate"].toLocaleString) {
             //@ts-ignore
             colInfo["repoCreateDate"] = `${colInfo["repoCreateDate"].getFullYear()}-${colInfo["repoCreateDate"].getMonth() + 1}-${colInfo["repoCreateDate"].getDate()} ${colInfo["repoCreateDate"].getHours()}:${colInfo["repoCreateDate"].getMinutes()}:${colInfo["repoCreateDate"].getSeconds()}`;
@@ -111,6 +118,16 @@ export class ZPWSGitHubRepo {
             colInfo["languages"] = JSON.stringify(colInfo["languages"]);
         }
 
+
+        colInfo = colInfo.map(item => {
+            //@ts-ignore
+            if (item["lastIndProbeDate"] && item["lastIndProbeDate"].toLocaleString) {
+                //@ts-ignore
+                item["lastIndProbeDate"] = `${item["lastIndProbeDate"].getFullYear()}-${item["lastIndProbeDate"].getMonth() + 1}-${item["lastIndProbeDate"].getDate()} ${item["lastIndProbeDate"].getHours()}:${item["lastIndProbeDate"].getMinutes()}:${item["lastIndProbeDate"].getSeconds()}`;
+            }
+
+            return item;
+        })
 
         colInfo = colInfo.map(item => {
             //@ts-ignore
@@ -182,6 +199,13 @@ export class ZPWSGitHubRepo {
 
 
         //@ts-ignore
+        if (item["lastIndProbeDate"] && item["lastIndProbeDate"].toLocaleString) {
+            //@ts-ignore
+            item["lastIndProbeDate"] = `${item["lastIndProbeDate"].getFullYear()}-${item["lastIndProbeDate"].getMonth() + 1}-${item["lastIndProbeDate"].getDate()} ${item["lastIndProbeDate"].getHours()}:${item["lastIndProbeDate"].getMinutes()}:${item["lastIndProbeDate"].getSeconds()}`;
+        }
+
+
+        //@ts-ignore
         if (item["repoCreateDate"] && item["repoCreateDate"].toLocaleString) {
             //@ts-ignore
             item["repoCreateDate"] = `${item["repoCreateDate"].getFullYear()}-${item["repoCreateDate"].getMonth() + 1}-${item["repoCreateDate"].getDate()} ${item["repoCreateDate"].getHours()}:${item["repoCreateDate"].getMinutes()}:${item["repoCreateDate"].getSeconds()}`;
@@ -243,6 +267,13 @@ export class ZPWSGitHubRepo {
 
 
         //@ts-ignore
+        if (item["lastIndProbeDate"] && item["lastIndProbeDate"].toLocaleString) {
+            //@ts-ignore
+            item["lastIndProbeDate"] = `${item["lastIndProbeDate"].getFullYear()}-${item["lastIndProbeDate"].getMonth() + 1}-${item["lastIndProbeDate"].getDate()} ${item["lastIndProbeDate"].getHours()}:${item["lastIndProbeDate"].getMinutes()}:${item["lastIndProbeDate"].getSeconds()}`;
+        }
+
+
+        //@ts-ignore
         if (item["repoCreateDate"] && item["repoCreateDate"].toLocaleString) {
             //@ts-ignore
             item["repoCreateDate"] = `${item["repoCreateDate"].getFullYear()}-${item["repoCreateDate"].getMonth() + 1}-${item["repoCreateDate"].getDate()} ${item["repoCreateDate"].getHours()}:${item["repoCreateDate"].getMinutes()}:${item["repoCreateDate"].getSeconds()}`;
@@ -293,6 +324,13 @@ export class ZPWSGitHubRepo {
 
         if (typeof modifyColInfo["languages"] !== 'string' && typeof modifyColInfo["languages"] === 'object') {
             modifyColInfo["languages"] = JSON.stringify(modifyColInfo["languages"]);
+        }
+
+
+        //@ts-ignore
+        if (modifyColInfo["lastIndProbeDate"] && modifyColInfo["lastIndProbeDate"].toLocaleString) {
+            //@ts-ignore
+            modifyColInfo["lastIndProbeDate"] = `${modifyColInfo["lastIndProbeDate"].getFullYear()}-${modifyColInfo["lastIndProbeDate"].getMonth() + 1}-${modifyColInfo["lastIndProbeDate"].getDate()} ${modifyColInfo["lastIndProbeDate"].getHours()}:${modifyColInfo["lastIndProbeDate"].getMinutes()}:${modifyColInfo["lastIndProbeDate"].getSeconds()}`;
         }
 
 
@@ -402,6 +440,13 @@ export class ZPWSGitHubRepo {
         })
 
         result['[]']?.ZPWSGitHubRepo?.forEach(item => {
+            if (item["lastIndProbeDate"]) {
+                //@ts-ignore
+                item["lastIndProbeDate"] = new Date(item["lastIndProbeDate"]);
+            }
+        })
+
+        result['[]']?.ZPWSGitHubRepo?.forEach(item => {
             if (item["repoCreateDate"]) {
                 //@ts-ignore
                 item["repoCreateDate"] = new Date(item["repoCreateDate"]);
@@ -487,6 +532,7 @@ export interface IZPWSGitHubRepo {
     descInfo?: string;// 简介:
     lastCommitDate?: Date;// 最后更新时间:
     repoCreateDate?: Date;// 库创建时间:
+    lastIndProbeDate?: Date;// 指标最后采集时间:
     languages?: any;// 项目涉及语言:
     addDate?: Date;// 添加时间:
     updateDate?: Date;// 更新时间:

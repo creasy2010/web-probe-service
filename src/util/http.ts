@@ -4,6 +4,7 @@ import {sleep} from "../index";
 const loadPageTimeout = 20 * 1000;
 
 export async function loadPageSource(pageUrl: string, param?: { tryCount?: number;waitTime?:number }) {
+    console.info(`${new Date().toLocaleTimeString()} src/util/http.ts:loadPageSource():`, pageUrl);
     let tryCount = param?.tryCount || 1;
     let response: any,lastError;
 
@@ -19,7 +20,7 @@ export async function loadPageSource(pageUrl: string, param?: { tryCount?: numbe
             tryCount--;
             console.warn(`load page source error,try again:[${tryCount}]`, pageUrl);
         }
-        await sleep(param.waitTime);
+        await sleep(param?.waitTime);
     }
     // let response = await  axios.get(pageUrl,{timeout:40000});
     if (response?.status != 200) {

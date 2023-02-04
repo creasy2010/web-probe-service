@@ -35,7 +35,7 @@ class HttpClient implements IHttpClient {
     constructor() {
         console.log(`HttpClient ${this.id} init`);
         this.instance = axios.create({
-            baseURL: process.env.APIJSON_HOST || 'http://10.4.2.55:8888',
+            baseURL: process.env.APIJSON_HOST || 'http://10.4.2.55:8888'|| 'http://0.0.0.0:8080',
             timeout: 60000,
             headers: {
                 'Content-Type': 'application/json'

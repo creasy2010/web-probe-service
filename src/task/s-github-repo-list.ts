@@ -132,7 +132,7 @@ export default class SGithubRepoList extends AbsBaseTask {
                              name:item.name,
                              starts:item.starts,
                              language:item.language,
-                             descInfo:item.descInfo,
+                             descInfo:item.descInfo?.substring(0,1024)||"",
                              languages:[],
                              lastCommitDate:item.lastCommitDate,
                              repoCreateDate:date,
