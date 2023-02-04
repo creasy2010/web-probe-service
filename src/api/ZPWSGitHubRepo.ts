@@ -166,11 +166,38 @@ export class ZPWSGitHubRepo {
      * @param id
      */
     async get(id: number): Promise<IZPWSGitHubRepo> {
+        //slot get
         let result = await this.httpClient.post(`/get`, {
             "ZPWSGitHubRepo": {
                 id: id
             }
         });
+        //slot get after
+        if (result.ZPWSGitHubRepo["updateDate"]) {
+            //@ts-ignore
+            result.ZPWSGitHubRepo["updateDate"] = new Date(result.ZPWSGitHubRepo["updateDate"]);
+        }
+
+        if (result.ZPWSGitHubRepo["addDate"]) {
+            //@ts-ignore
+            result.ZPWSGitHubRepo["addDate"] = new Date(result.ZPWSGitHubRepo["addDate"]);
+        }
+
+        if (result.ZPWSGitHubRepo["lastIndProbeDate"]) {
+            //@ts-ignore
+            result.ZPWSGitHubRepo["lastIndProbeDate"] = new Date(result.ZPWSGitHubRepo["lastIndProbeDate"]);
+        }
+
+        if (result.ZPWSGitHubRepo["repoCreateDate"]) {
+            //@ts-ignore
+            result.ZPWSGitHubRepo["repoCreateDate"] = new Date(result.ZPWSGitHubRepo["repoCreateDate"]);
+        }
+
+        if (result.ZPWSGitHubRepo["lastCommitDate"]) {
+            //@ts-ignore
+            result.ZPWSGitHubRepo["lastCommitDate"] = new Date(result.ZPWSGitHubRepo["lastCommitDate"]);
+        }
+
 
         if (result.code !== 200) {
             throw new Error(result.msg);

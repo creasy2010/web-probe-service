@@ -89,11 +89,18 @@ export class ZPWSGithubRepoInd {
      * @param id
      */
     async get(id: number): Promise<IZPWSGithubRepoInd> {
+        //slot get
         let result = await this.httpClient.post(`/get`, {
             "ZPWSGithubRepoInd": {
                 id: id
             }
         });
+        //slot get after
+        if (result.ZPWSGithubRepoInd["addDate"]) {
+            //@ts-ignore
+            result.ZPWSGithubRepoInd["addDate"] = new Date(result.ZPWSGithubRepoInd["addDate"]);
+        }
+
 
         if (result.code !== 200) {
             throw new Error(result.msg);
@@ -435,6 +442,7 @@ export interface IZPWSGithubRepoInd {
     repoId?: number;// 库id:
     watchInd?: number;// 关注人数:
     starInd?: number;// start人数:
+    commitInd?: number;// Commits on master:
     forkInd?: number;// fork人数:
     contributorInd?: number;// 参与贡献人数:
     prOpen?: number;// openPr数量:

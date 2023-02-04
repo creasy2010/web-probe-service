@@ -44,6 +44,7 @@ export default class SGithub extends AbsBaseTask {
             watchInd: basic.watchInd,
             starInd: basic.starInd,// start人数:
             forkInd: basic.forkInd,// fork人数:
+            commitInd:basic.commitInd,// commit人数:
             contributorInd: basic.contributorInd,// 参与贡献人数:
             prOpen: pr.prOpen,// openPr数量:
             prClosed: pr.prClosed,// closePr数量:
@@ -65,7 +66,7 @@ export default class SGithub extends AbsBaseTask {
 
 
     async getFirstPage() {
-        let watchInd, starInd, forkInd, contributorInd, Languages, issueInd, issueOpenInd, issueCloseInd, prInd,
+        let watchInd, starInd, forkInd, contributorInd, Languages, issueInd, issueOpenInd, issueCloseInd, prInd,commitInd,
             prOpenInd, prCloseInd;
         // https://github.com/fathyb/carbonyl/issues?q=
         // https://github.com/fathyb/carbonyl/pulls?q=
@@ -106,8 +107,19 @@ export default class SGithub extends AbsBaseTask {
             });
             assert.strictEqual(contributorStr.length, 1);
             contributorInd = parseInt(contributorStr[0].match(/title="([\d,]+)"/)[1].replace(',', ""));
+            let commitStr = getSniptHtml('Commits on master', resulto.data, {
+                after:5,
+                before:50
+            });
+            if(commitStr[0]){
+                commitInd = commitStr[0].match(/<strong>([\s\S]+)<\/strong>/)[1].replace(',', "");
+                if(commitInd.includes("k")){
+                    commitInd=parseInt(commitInd.replace("k","000").replaceAll(" ",''))
+                }
+            }
             return {
-                watchInd, starInd, forkInd, Languages, contributorInd
+                watchInd, starInd, forkInd, Languages, contributorInd,
+                commitInd
             }
         }
     }

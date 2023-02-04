@@ -5,16 +5,9 @@ import SGithubRepoList from "./task/s-github-repo-list";
 import api from "./api";
 import LocalStorage from "./service/local-storage";
 
-
 if(require.main === module ){
     (async () => {
         while(true){
-            try {
-                await new SGithubRepoList({}).run();
-            } catch (err) {
-                console.warn("方法:", err);
-            }
-
             // todo dong 2023/2/4 分级处理
             let totalCount =await api.gitHubRepo.queryTotalCount();
             let totalPage=Math.ceil( totalCount/100);
@@ -31,6 +24,7 @@ if(require.main === module ){
                 for (let j = 0, jLen = result.data.length; j < jLen; j++) {
                     try {
                         let resultElement = result.data[j];
+                        api.gitHubRepo.get(resultElement.id);
                         if (resultElement.lastIndProbeDate) {
                             let lastIndProbeDate = new Date(resultElement.lastIndProbeDate);
                             let curWeekRange = getCurrentWeek();
@@ -52,6 +46,11 @@ if(require.main === module ){
                 LocalStorage.setItem(key,i);
             }
             //采集单个库的;
+            try {
+                await new SGithubRepoList({}).run();
+            } catch (err) {
+                console.warn("方法:", err);
+            }
         }
 
 
