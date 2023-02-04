@@ -75,8 +75,7 @@ export default class SGithub extends AbsBaseTask {
             let watchStr = getSniptHtml('Watchers</h3>', resulto.data, {
                 afterFlag: "watching"
             });
-            assert.strictEqual(watchStr.length, 1);
-            watchInd = parseInt(watchStr[0].match(/strong>(\d+)/)[1].replace(',', ""));
+            watchInd = parseInt(watchStr[0]?.match(/strong>(\d+)/)?.[1]?.replace(',', "")||"0");
             let starStr = getSniptHtml('repo-stars-counter-star', resulto.data, {
                 afterFlag: "</span>"
             })
