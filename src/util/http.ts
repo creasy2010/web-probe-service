@@ -3,7 +3,7 @@ import {sleep} from "../index";
 
 const loadPageTimeout = 20 * 1000;
 
-export async function loadPageSource(pageUrl: string, param?: { tryCount?: number;waitTime?:number }) {
+export async function loadPageSource(pageUrl: string, param?: { tryCount?: number;waitTime?:number,keyword?:string }) {
     console.info(`${new Date().toLocaleTimeString()} src/util/http.ts:loadPageSource():`, pageUrl);
     let tryCount = param?.tryCount || 1;
     let response: any,lastError;
@@ -11,6 +11,11 @@ export async function loadPageSource(pageUrl: string, param?: { tryCount?: numbe
     while (tryCount > 0) {
         try {
             response = await loadPage(pageUrl);
+            if(param.keyword &&  response.data){
+                if(response.data.indexOf(param.keyword)==-1){
+                    throw new Error(`load page source error,keyword not found`)
+                }
+            }
             if (response.status == 200) {
                 break;
             }

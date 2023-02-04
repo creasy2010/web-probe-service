@@ -70,7 +70,7 @@ export default class SGithub extends AbsBaseTask {
             prOpenInd, prCloseInd;
         // https://github.com/fathyb/carbonyl/issues?q=
         // https://github.com/fathyb/carbonyl/pulls?q=
-        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl),{tryCount:3,waitTime:15000});
+        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl),{tryCount:3,waitTime:15000,keyword:"#repo-content-pjax-container"});
         if (resulto.data) {
             let watchStr = getSniptHtml('Watchers</h3>', resulto.data, {
                 afterFlag: "watching"
@@ -79,6 +79,9 @@ export default class SGithub extends AbsBaseTask {
             let starStr = getSniptHtml('repo-stars-counter-star', resulto.data, {
                 afterFlag: "</span>"
             })
+            if(starStr.length===0){
+                debugger;
+            }
             assert.strictEqual(starStr.length, 1);
             starInd = parseInt(starStr[0].match(/title="([\d,]+)"/)[1].replace(',', ""));
 
@@ -125,11 +128,14 @@ export default class SGithub extends AbsBaseTask {
 
     async getIssuePage() {
         // https://github.com/fathyb/carbonyl/issues?q=
-        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl + "/issues?q="),{tryCount:3,waitTime:15000});
+        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl + "/issues?q="),{tryCount:3,waitTime:15000,keyword:"Automate any workflow"});
         if (resulto.data) {
             let issueStr = getSniptHtml('table-list-header-toggle states flex-auto pl-0', resulto.data, {
                 afterFlag: "</div>"
             });
+            if(!issueStr[0]){
+                debugger;
+            }
 
             let matchresult = issueStr[0].match(/<\/svg> ([\s\S]+) Open[\s\S]* ([\s\S]+) Closed/)
             assert.strictEqual(issueStr.length >= 1, true);
@@ -144,7 +150,7 @@ export default class SGithub extends AbsBaseTask {
 
     async getPrPage() {
         // https://github.com/fathyb/carbonyl/pulls?q=
-        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl + "/pulls?q="),{tryCount:3,waitTime:15000});
+        let resulto = await loadPageSource(toFanyiUrl(this.gitUrl + "/pulls?q="),{tryCount:3,waitTime:15000,keyword:"Automate any workflow"});
         if (resulto.data) {
             let prStr = getSniptHtml('table-list-header-toggle states flex-auto pl-0', resulto.data, {
                 afterFlag: "</div>"

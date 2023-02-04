@@ -12,10 +12,11 @@ if(require.main === module ){
             let totalCount =await api.gitHubRepo.queryTotalCount();
             let totalPage=Math.ceil( totalCount/100);
             const key ='s-github::pageIndex'
-            let i=LocalStorage.getItem(key) ||50;
-            while(i++<totalPage){
+            let pageIndex=LocalStorage.getItem(key)||0;
+            let constNum=pageIndex*100;
+            while(pageIndex++<totalPage){
                 let result =await api.gitHubRepo.query({
-                    page:i,
+                    page:pageIndex,
                     count:100,
                     colCondition:{
                         '@order':'addDate+'
@@ -24,18 +25,17 @@ if(require.main === module ){
                 for (let j = 0, jLen = result.data.length; j < jLen; j++) {
                     try {
                         let resultElement = result.data[j];
-                        api.gitHubRepo.get(resultElement.id);
                         if (resultElement.lastIndProbeDate) {
                             let lastIndProbeDate = new Date(resultElement.lastIndProbeDate);
                             let curWeekRange = getCurrentWeek();
                             if (curWeekRange.startDate > lastIndProbeDate) {
-                                console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集`, resultElement.name);
+                                console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.name);
                                 await buildTask('SGithub', resultElement).run();
                             } else {
                                 console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():忽略`, resultElement.name);
                             }
                         } else {
-                            console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集`, resultElement.name);
+                            console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.name);
                             await buildTask('SGithub', resultElement).run();
                         }
                     } catch (err) {
@@ -43,7 +43,7 @@ if(require.main === module ){
                     }
                     // 更新采集时间
                 }
-                LocalStorage.setItem(key,i);
+                LocalStorage.setItem(key,pageIndex);
             }
             //采集单个库的;
             try {
