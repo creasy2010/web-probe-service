@@ -26,7 +26,7 @@ import api from "../api";
 
 const minitueUnit = 60*1000;
 const sleepTimePerReq=0.3*minitueUnit;
-const searbegTime = new Date(new Date().getFullYear()-7,0,0);
+const searbegTime = new Date(new Date().getFullYear()-4,0,0);
 
 const dayMsUnit=24 * 60 * 60 * 1000;
 

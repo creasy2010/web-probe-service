@@ -12,7 +12,7 @@ RUN #git config --global init.defaultBranch master && git config --global user.e
 # RUN cd /usr/src/moon/app/okrtemp/app/ && git init && git add . && git commit -m "init" &&cd /usr/src/moon/app/okrtemp/bff/ && git init && git add . && git commit -m "init" && cd /usr/src/moon/app/okrtemp/common/ && git init && git add . && git commit -m "init" &&cd /usr/src/moon/app/okrtemp/component/ && git init && git add . && git commit -m "init" &&cd /usr/src/moon/app/okrtemp/framework/ && git init && git add . && git commit -m "init" &&cd /usr/src/moon/app/okrtemp/pbff/ && git init && git add . && git commit -m "init"
 #CMD [ "ts-node","--project","./app/tsconfig.json","./src/cli-execute.ts"]
 #CMD [ "java",'-version']
-CMD [ "npm","run","start"]
+CMD [ "npm","run","start:Prod"]
 
 #CMD [ "which",'node']
 #CMD [ "ls","-l","./src"]

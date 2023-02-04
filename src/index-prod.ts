@@ -7,6 +7,12 @@ import LocalStorage from "./service/local-storage";
 
 (async () => {
     while(true){
+        try {
+            await new SGithubRepoList({}).run();
+        } catch (err) {
+            console.warn("方法:", err);
+        }
+
         // todo dong 2023/2/4 分级处理
         let totalCount =await api.gitHubRepo.queryTotalCount();
         let totalPage=Math.ceil( totalCount/100);
@@ -42,11 +48,6 @@ import LocalStorage from "./service/local-storage";
                 // 更新采集时间
             }
             LocalStorage.setItem(key,i);
-        }
-        try {
-            await new SGithubRepoList({}).run();
-        } catch (err) {
-            console.warn("方法:", err);
         }
         //采集单个库的;
     }
