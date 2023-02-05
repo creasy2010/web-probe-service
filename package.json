@@ -4,7 +4,7 @@
 		"start": "ts-node ./src/index.ts",
 		"build:docker": "docker-compose -f docker-compose-build.yml down -v && docker-compose -f docker-compose-build.yml build",
 		"start:docker": "docker-compose -f docker-compose.yml down -v && docker-compose  up -d && docker ps",
-		"auto": "docker-compose down -v && git pull && docker-compose up -d  && docker ps",
+		"auto": "git checkout .  && docker-compose down -v && git pull && docker-compose up -d  && docker ps",
 		"auto:publish": "npm run build:docker|grep 'naming to' | awk '{print $4}'| awk -F/ '{print \"yangxiaodong\" $3}' | "
 	},
 	"dependencies": {

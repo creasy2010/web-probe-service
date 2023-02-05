@@ -2,6 +2,8 @@ FROM --platform=linux/amd64  ghcr.io/puppeteer/puppeteer:latest
 
 # RUN apt-get update  -y && apt-get install -y git  &&  apt-get install -y vim
 # RUN sudo npm install -g typescript --registry https://registry.npm.taobao.org &&   npm install -g ts-node --registry https://registry.npm.taobao.org &&  npm install cnpm -g --registry https://registry.npm.taobao.org &&  npm install -g npm-cli-adduser --registry https://registry.npm.taobao.org&&  npm install -g prettier --registry https://registry.npm.taobao.org
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' >/etc/timezone
 WORKDIR /usr/workbench/
 COPY package*.json .
 RUN npm install --registry https://registry.npm.taobao.org   #NODE_ENV=production

@@ -134,16 +134,16 @@ export default class SGithubRepoList extends AbsBaseTask {
                   repoList=repoList.concat(newNames)
                      while(newAddList.length>0){
                          // todo dong 2023/2/3 batch只有五个有点夸张了,调整下api
-                        console.log(await api.gitHubRepo.addBatch(newAddList.splice(0,5).map(item=>({
-                             userId:38710,
-                             name:item.name,
-                             starts:item.starts,
-                             language:item.language,
-                             descInfo:item.descInfo?.substring(0,1024)||"",
-                             languages:[],
-                             lastCommitDate:item.lastCommitDate,
-                             repoCreateDate:date,
-                         }))));
+                        console.log('新增id: ',(await api.gitHubRepo.addBatch(newAddList.splice(0,5).map(item=>({
+                            userId:38710,
+                            name:item.name,
+                            starts:item.starts,
+                            language:item.language,
+                            descInfo:item.descInfo?.substring(0,1024)||"",
+                            languages:[],
+                            lastCommitDate:item.lastCommitDate,
+                            repoCreateDate:date,
+                        }))))['id[]'].join(','));
                      }
                     }
                 } catch (err) {
