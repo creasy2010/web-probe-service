@@ -53,6 +53,7 @@ export default class SGithubRepoList extends AbsBaseTask {
 
         //date `YYYY-MM-DD`
         async function getDayRepo(date:string) {
+            console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:getDayRepo():`, date);
             let results  =   (await api.gitHubRepo.queryAll({'@column':"name,id",'repoCreateDate':date}));
             results.forEach(item=>{
                 nameIdMap[item.name]=item.id;
@@ -81,7 +82,8 @@ export default class SGithubRepoList extends AbsBaseTask {
 
         const dateKey=this.key+'::startDate';
         for (let date =( isInit&&getCache(dateKey))? new Date(getCache(dateKey)):searbegTime ; date.getTime() <= now.getTime(); date= new Date(date.getTime() + stepAdd)){
-            let dateStr = date.toISOString().split('T')[0];
+            // let dateStr = date.toISOString().split('T')[0];
+            let dateStr =`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
             await getDayRepo(dateStr);
             if(dupIds.length>0){
                 console.info(`delete from ZPWSGitHubRepo where id in (${dupIds.join(",")}) `);
