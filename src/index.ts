@@ -29,13 +29,13 @@ if(require.main === module ){
                             let lastIndProbeDate = new Date(resultElement.lastIndProbeDate);
                             let curWeekRange = getCurrentWeek();
                             if (curWeekRange.startDate > lastIndProbeDate) {
-                                console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.name);
+                                console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`,  resultElement.id, resultElement.name);
                                 await buildTask('SGithub', resultElement).run();
                             } else {
-                                console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():忽略`, resultElement.name);
+                                console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():忽略`, resultElement.id, resultElement.name, resultElement.lastIndProbeDate.toISOString());
                             }
                         } else {
-                            console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.name);
+                            console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.id,  resultElement.name);
                             await buildTask('SGithub', resultElement).run();
                         }
                     } catch (err) {
@@ -111,7 +111,10 @@ function getCurrentWeek(){
     var curr = new Date(); // get current date
     var startDate = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
     var endDate = startDate + 6; // last day is the first day + 6
-    return  {startDate:new Date(curr.setDate(startDate)),endDate:new Date(curr.setDate(endDate))};
+
+    return {startDate: new Date(2023,0,29),endDate:new Date(2023,1,7)}
+
+    // return  {startDate:new Date(curr.setDate(startDate)),endDate:new Date(curr.setDate(endDate))};
 }
 
 

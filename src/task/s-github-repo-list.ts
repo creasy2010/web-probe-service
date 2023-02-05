@@ -26,7 +26,7 @@ import api from "../api";
 
 const minitueUnit = 60*1000;
 const sleepTimePerReq=0.3*minitueUnit;
-const searbegTime = new Date(new Date().getFullYear()-5,0,0);
+const searbegTime = new Date(2018,2,25)   //new Date(new Date().getFullYear()-5,0,0);
 
 const dayMsUnit=24 * 60 * 60 * 1000;
 
@@ -63,11 +63,6 @@ export default class SGithubRepoList extends AbsBaseTask {
                 }
             });
         }
-        //
-        if(dupIds.length>0){
-            console.info(`delete ZMMResourceChangeRecord where id in (${dupIds.join(",")}) ` );
-            throw new Error(`数据库中包含重复数据 id:${dupIds.join(",")}`);
-        }
 
         // debugger;
         // 这个数据入库;
@@ -87,9 +82,14 @@ export default class SGithubRepoList extends AbsBaseTask {
         const dateKey=this.key+'::startDate';
         for (let date =( isInit&&getCache(dateKey))? new Date(getCache(dateKey)):searbegTime ; date.getTime() <= now.getTime(); date= new Date(date.getTime() + stepAdd)){
             let dateStr = date.toISOString().split('T')[0];
-            LocalStorage.setItem(dateKey,dateStr);
             await getDayRepo(dateStr);
+            if(dupIds.length>0){
+                console.info(`delete from ZPWSGitHubRepo where id in (${dupIds.join(",")}) `);
+                throw new Error(`数据库中包含重复数据 id:${dupIds.join(",")}`);
+            }
+            // continue;
             console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():date`, date);
+            LocalStorage.setItem(dateKey,dateStr);
             let dateRange  = getFromToFromDate(date,stepAdd);
             // todo dong 2023/2/3 给定一个范围自己检测分区情况;
             // isInit? getCache(startKey,500):500
@@ -129,7 +129,7 @@ export default class SGithubRepoList extends AbsBaseTask {
                     if(newAddList.length>0){
                         // todo dong 2023/2/3 存在的话则更新;
                         let newNames =newAddList.map(item=>item.name);
-                     console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目`, newNames.join(','));
+                     console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目${newNames.length}`, newNames.join(','));
 
                   repoList=repoList.concat(newNames)
                      while(newAddList.length>0){
