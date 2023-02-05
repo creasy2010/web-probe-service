@@ -25,8 +25,8 @@ import api from "../api";
  // })
 
 const minitueUnit = 60*1000;
-const sleepTimePerReq=0.3*minitueUnit;
-const searbegTime = new Date(new Date().getFullYear()-4,0,0);
+const sleepTimePerReq=0.1*minitueUnit;
+const searbegTime = new Date(new Date().getFullYear()-10,0,0);
 
 const dayMsUnit=24 * 60 * 60 * 1000;
 
@@ -314,7 +314,9 @@ function getFromToFromDate(fromDate:Date,addms:number):{from:string;to:string} {
 }
 
 function date2Str(date:Date):string {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    let month  = (date.getMonth()+1)+"";
+    let day = (date.getDate())+"";
+    return `${date.getFullYear()}-${month.length===1?"0"+month:month}-${day.length===1?"0"+day:day}`;
 }
 
 
