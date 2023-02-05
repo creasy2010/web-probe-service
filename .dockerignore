@@ -10,4 +10,3 @@ logs
 .vscode
 temp
 **/.git/**
-localStorage.json
