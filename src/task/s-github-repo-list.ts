@@ -83,14 +83,14 @@ export default class SGithubRepoList extends AbsBaseTask {
         const dateKey=this.key+'::startDate';
         for (let date =( isInit&&getCache(dateKey))? new Date(getCache(dateKey)):searbegTime ; date.getTime() <= now.getTime(); date= new Date(date.getTime() + stepAdd)){
             // let dateStr = date.toISOString().split('T')[0];
-            let dateStr =`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+            let dateStr =date2Str(date) //
             await getDayRepo(dateStr);
             if(dupIds.length>0){
                 console.info(`delete from ZPWSGitHubRepo where id in (${dupIds.join(",")}) `);
                 throw new Error(`数据库中包含重复数据 id:${dupIds.join(",")}`);
             }
             // continue;
-            console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():date`, date);
+            console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():date`, date.toLocaleDateString());
             LocalStorage.setItem(dateKey,dateStr);
             let dateRange  = getFromToFromDate(date,stepAdd);
             // todo dong 2023/2/3 给定一个范围自己检测分区情况;
@@ -131,7 +131,7 @@ export default class SGithubRepoList extends AbsBaseTask {
                     if(newAddList.length>0){
                         // todo dong 2023/2/3 存在的话则更新;
                         let newNames =newAddList.map(item=>item.name);
-                     console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目${newNames.length}`, date , newNames.join(','));
+                     console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目${newNames.length}`, date.toLocaleDateString() , newNames.join(','));
 
                   repoList=repoList.concat(newNames)
                      while(newAddList.length>0){
@@ -308,10 +308,15 @@ function getSniptHtml(flag: string | RegExp, html: string, param: {
 
 function getFromToFromDate(fromDate:Date,addms:number):{from:string;to:string} {
     return {
-        from:fromDate.toISOString().split("T")[0],
-        to:new Date(fromDate.getTime() + addms).toISOString().split("T")[0]
+        from:date2Str(fromDate) , // fromDate.toISOString().split("T")[0],
+        to:date2Str(new Date(fromDate.getTime() + addms)), // .toISOString().split("T")[0]
     }
 }
+
+function date2Str(date:Date):string {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
 
 
 
