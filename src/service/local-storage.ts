@@ -25,6 +25,7 @@ class LocalStorage {
         this.autoSave()
     }
     getItem(key:string){
+        console.info(`${new Date().toLocaleTimeString()} src/service/local-storage.ts:getItem():`, key, storageMap[key]);
         return storageMap[key];
     }
 

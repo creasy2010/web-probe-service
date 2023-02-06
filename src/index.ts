@@ -22,6 +22,7 @@ if(require.main === module ){
                         '@order':'addDate+'
                     }
                 });
+
                 for (let j = 0, jLen = result.data.length; j < jLen; j++) {
                     try {
                         let resultElement = result.data[j];
@@ -32,7 +33,7 @@ if(require.main === module ){
                                 console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`,  resultElement.id, resultElement.name);
                                 await buildTask('SGithub', resultElement).run();
                             } else {
-                                console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():忽略`, resultElement.id, resultElement.name, resultElement.lastIndProbeDate.toISOString());
+                                console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():北周已采集 忽略`, resultElement.id, resultElement.name, resultElement.lastIndProbeDate.toLocaleDateString());
                             }
                         } else {
                             console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.id,  resultElement.name);

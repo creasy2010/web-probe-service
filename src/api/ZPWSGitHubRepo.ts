@@ -452,38 +452,38 @@ export class ZPWSGitHubRepo {
             throw new Error(result.msg);
         }
         //slot executeQuery after
-        result['[]']?.ZPWSGitHubRepo?.forEach(item => {
-            if (item["updateDate"]) {
+        result['[]']?.forEach(item => {
+            if (item?.ZPWSGitHubRepo?.["updateDate"]) {
                 //@ts-ignore
-                item["updateDate"] = new Date(item["updateDate"]);
+                item?.ZPWSGitHubRepo?.["updateDate"] = new Date(item?.ZPWSGitHubRepo?.["updateDate"]);
             }
         })
 
-        result['[]']?.ZPWSGitHubRepo?.forEach(item => {
-            if (item["addDate"]) {
+        result['[]']?.forEach(item => {
+            if (item?.ZPWSGitHubRepo?.["addDate"]) {
                 //@ts-ignore
-                item["addDate"] = new Date(item["addDate"]);
+                item?.ZPWSGitHubRepo?.["addDate"] = new Date(item?.ZPWSGitHubRepo?.["addDate"]);
             }
         })
 
-        result['[]']?.ZPWSGitHubRepo?.forEach(item => {
-            if (item["lastIndProbeDate"]) {
+        result['[]']?.forEach(item => {
+            if (item?.ZPWSGitHubRepo?.["lastIndProbeDate"]) {
                 //@ts-ignore
-                item["lastIndProbeDate"] = new Date(item["lastIndProbeDate"]);
+                item?.ZPWSGitHubRepo?.["lastIndProbeDate"] = new Date(item?.ZPWSGitHubRepo?.["lastIndProbeDate"]);
             }
         })
 
-        result['[]']?.ZPWSGitHubRepo?.forEach(item => {
-            if (item["repoCreateDate"]) {
+        result['[]']?.forEach(item => {
+            if (item?.ZPWSGitHubRepo?.["repoCreateDate"]) {
                 //@ts-ignore
-                item["repoCreateDate"] = new Date(item["repoCreateDate"]);
+                item?.ZPWSGitHubRepo?.["repoCreateDate"] = new Date(item?.ZPWSGitHubRepo?.["repoCreateDate"]);
             }
         })
 
-        result['[]']?.ZPWSGitHubRepo?.forEach(item => {
-            if (item["lastCommitDate"]) {
+        result['[]']?.forEach(item => {
+            if (item?.ZPWSGitHubRepo?.["lastCommitDate"]) {
                 //@ts-ignore
-                item["lastCommitDate"] = new Date(item["lastCommitDate"]);
+                item?.ZPWSGitHubRepo?.["lastCommitDate"] = new Date(item?.ZPWSGitHubRepo?.["lastCommitDate"]);
             }
         })
 
