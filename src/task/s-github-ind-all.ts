@@ -50,15 +50,18 @@ export default class SGithubIndAll extends AbsBaseTask {
                         if (curWeekRange.startDate > lastIndProbeDate) {
                             console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`,  resultElement.id, resultElement.name);
                             await buildTask('SGithub', resultElement).run();
+                            await  sleep(1000);
                         } else {
-                            console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():北周已采集 忽略`, resultElement.id, resultElement.name, resultElement.lastIndProbeDate.toLocaleDateString());
+                            console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():本周已采集 忽略`, resultElement.id, resultElement.name, resultElement.lastIndProbeDate.toLocaleDateString());
                         }
                     } else {
                         console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.id,  resultElement.name);
                         await buildTask('SGithub', resultElement).run();
+                        await  sleep(1000);
                     }
                 } catch (err) {
                     console.warn("方法:", err);
+                   await  sleep(10000);
                 }
                 // 更新采集时间
             }

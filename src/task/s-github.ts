@@ -27,9 +27,9 @@ export default class SGithub extends AbsBaseTask {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():`,);
      // let [basic,pr,iss]=   await Promise.all([this.getFirstPage(),this.getPrPage(),this.getIssuePage()])
        let basic =await this.getFirstPage();
-       // await sleep(1000);
+       await sleep(500);
        let pr = await this.getPrPage();
-       // await sleep(1000);
+       await sleep(500);
        let iss = await this.getIssuePage();
 
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done`, this.taskInfo.name,JSON.stringify({
@@ -51,7 +51,7 @@ export default class SGithub extends AbsBaseTask {
             issueClosed: iss.issueClosed,// 关闭问题数量:
             issueOpen: iss.issueOpen,// 开启问题数量:
         });
-        api.gitHubRepo.update({
+       await api.gitHubRepo.update({
             id:this.taskInfo.id,
             starts:basic.starInd,
             lastIndProbeDate:new Date(),
