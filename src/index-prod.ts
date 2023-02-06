@@ -10,12 +10,12 @@ if(require.main === module ){
     (async () => {
         while(true) {
             try {
-                await new SGithubRepoList({}).run();
+                await new SGithubIndAll().run();
             } catch (err) {
                 console.warn("方法:", err);
             }
             try {
-                await new SGithubIndAll().run();
+                await new SGithubRepoList({}).run();
             } catch (err) {
                 console.warn("方法:", err);
             }

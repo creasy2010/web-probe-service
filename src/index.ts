@@ -10,7 +10,6 @@ if(require.main === module ){
     (async () => {
         while(true){
             //采集单个库的;
-
             try {
                 await new SGithubIndAll().run();
             } catch (err) {
