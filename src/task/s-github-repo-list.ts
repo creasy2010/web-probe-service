@@ -47,9 +47,9 @@ export default class SGithubRepoList extends AbsBaseTask {
 
     async run(): Promise<void> {
         console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():`, );
-        let repoList  =[];
+        let dayRepoList  =[];
         const nameIdMap:{[name:string]:number}={};
-        let dupIds= [];
+        let dayDupIds= [];
 
         //date `YYYY-MM-DD`
         async function getDayRepo(date:string) {
@@ -57,10 +57,10 @@ export default class SGithubRepoList extends AbsBaseTask {
             let results  =   (await api.gitHubRepo.queryAll({'@column':"name,id",'repoCreateDate':date}));
             results.forEach(item=>{
                 nameIdMap[item.name]=item.id;
-                if(repoList.includes(item.name)){
-                    dupIds.push(item.id);
+                if(dayRepoList.includes(item.name)){
+                    dayDupIds.push(item.id);
                 }else{
-                    repoList.push(item.name)
+                    dayRepoList.push(item.name)
                 }
             });
         }
@@ -85,9 +85,9 @@ export default class SGithubRepoList extends AbsBaseTask {
             // let dateStr = date.toISOString().split('T')[0];
             let dateStr =date2Str(date) //
             await getDayRepo(dateStr);
-            if(dupIds.length>0){
-                console.info(`delete from ZPWSGitHubRepo where id in (${dupIds.join(",")}) `);
-                throw new Error(`数据库中包含重复数据 id:${dupIds.join(",")}`);
+            if(dayDupIds.length>0){
+                console.info(`delete from ZPWSGitHubRepo where id in (${dayDupIds.join(",")}) `);
+                throw new Error(`数据库中包含重复数据 id:${dayDupIds.join(",")}`);
             }
             // continue;
             console.info(`${new Date().toLocaleTimeString()} src/task/s-github-repo-list.ts:run():date`, date.toLocaleDateString());
@@ -97,7 +97,6 @@ export default class SGithubRepoList extends AbsBaseTask {
             // isInit? getCache(startKey,500):500
             for (let startStar =500 ;startStar < 100000; startStar+=starStep) {
                 let newAddList = [];
-                // LocalStorage.setItem(startKey,startStar);
                 isInit=false;
                 try {
                     let items = await this.getAllRepoList({
@@ -108,7 +107,7 @@ export default class SGithubRepoList extends AbsBaseTask {
                     });
                     for (let i = 0, iLen = items.length; i < iLen; i++) {
                         let item = items[i];
-                        if (!repoList.includes(item.name) ) {
+                        if (!dayRepoList.includes(item.name) ) {
                             newAddList.push(item);
                         } else {
                             // try {
@@ -132,8 +131,8 @@ export default class SGithubRepoList extends AbsBaseTask {
                         // todo dong 2023/2/3 存在的话则更新;
                         let newNames =newAddList.map(item=>item.name);
                      console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done: startStar:${startStar}新增项目${newNames.length}`, date.toLocaleDateString() , newNames.join(','));
-
-                  repoList=repoList.concat(newNames)
+                   dayRepoList=[];
+                  // dayRepoList=dayRepoList.concat(newNames)
                      while(newAddList.length>0){
                          // todo dong 2023/2/3 batch只有五个有点夸张了,调整下api
                         console.log('新增id: ',(await api.gitHubRepo.addBatch(newAddList.splice(0,5).map(item=>({
