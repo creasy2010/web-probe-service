@@ -32,13 +32,8 @@ export default class SGithub extends AbsBaseTask {
        await sleep(500);
        let iss = await this.getIssuePage();
 
-        console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done`, this.taskInfo.name,JSON.stringify({
-            ...basic,
-            ...pr,
-            ...iss,
-        }));
 
-        await api.gitHubRepoInd.add({
+        let indResult =await api.gitHubRepoInd.add({
             userId:38710,
             repoId:this.taskInfo.id,
             watchInd: basic.watchInd,
@@ -51,17 +46,19 @@ export default class SGithub extends AbsBaseTask {
             issueClosed: iss.issueClosed,// 关闭问题数量:
             issueOpen: iss.issueOpen,// 开启问题数量:
         });
+        console.info(`${new Date().toLocaleTimeString()} src/task/s-github.ts:run():done`, this.taskInfo.name,indResult.id,JSON.stringify({
+            ...basic,
+            ...pr,
+            ...iss,
+        }));
+
+       debugger;
        await api.gitHubRepo.update({
             id:this.taskInfo.id,
             starts:basic.starInd,
             lastIndProbeDate:new Date(),
             languages:basic.Languages,
         })
-        return Promise.resolve(undefined);
-    }
-    async uploadData(){
-        //上传指标数据;
-
     }
 
 
@@ -131,7 +128,7 @@ export default class SGithub extends AbsBaseTask {
         let resulto = await loadPageSource(toFanyiUrl(this.gitUrl + "/issues?q="),{tryCount:3,waitTime:15000,keyword:"Automate any workflow"});
         if (resulto.data) {
             let issueStr = getSniptHtml('table-list-header-toggle states flex-auto pl-0', resulto.data, {
-                afterFlag: "</div>"
+                afterFlag: "</div>",
             });
             if(!issueStr[0]){
                 debugger;
@@ -140,8 +137,8 @@ export default class SGithub extends AbsBaseTask {
             let matchresult = issueStr[0].match(/<\/svg> ([\s\S]+) Open[\s\S]* ([\s\S]+) Closed/)
             assert.strictEqual(issueStr.length >= 1, true);
             return {
-                issueOpen: parseInt(matchresult[1].replace(",","")),
-                issueClosed: parseInt(matchresult[2].replace(",",""))
+                issueOpen: parseInt(matchresult[1].replaceAll(",","")),
+                issueClosed: parseInt(matchresult[2].replaceAll(",",""))
             }
             // watchInd = watchStr[0].match(/strong>(\d+)/)[1];
         }
