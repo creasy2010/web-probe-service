@@ -43,9 +43,8 @@ export default class SGithubIndAll extends AbsBaseTask {
                 try {
                     let resultElement = result.data[j];
                     if (resultElement.lastIndProbeDate) {
-                        let lastIndProbeDate = new Date(resultElement.lastIndProbeDate);
                         let curWeekRange = getCurrentWeek();
-                        if (lastIndProbeDate> curWeekRange.startDate) {
+                        if (curWeekRange.startDate > resultElement.lastIndProbeDate) {
                             console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.id, resultElement.name);
                             await buildTask('SGithub', resultElement).run();
                             // await sleep(1000);
