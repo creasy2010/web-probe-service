@@ -32,7 +32,7 @@ export async function loadPageSource(pageUrl: string, param?: { tryCount?: numbe
         console.error(`${new Date().toLocaleTimeString()} src/util/http.ts:loadPageSource():`,lastError );
         throw new Error(`load page source error`)
     }
-    if(response.data.indexOf(param.keyword)==-1){
+    if(!(response.data && response.data.indexOf(param.keyword)>-1)){
         console.error(`${new Date().toLocaleTimeString()} src/util/http.ts:loadPageSource():load page source error,keyword not found`,param.keyword,pageUrl);
         throw new Error(`load page source error,keyword not found`)
     }

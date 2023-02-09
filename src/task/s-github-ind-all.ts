@@ -34,6 +34,7 @@ export default class SGithubIndAll extends AbsBaseTask {
                 page: pageIndex,
                 count: pageCount,
                 colCondition: {
+                    // id:1675640713686,
                     '@order': 'addDate+'
                 }
             });
@@ -44,7 +45,7 @@ export default class SGithubIndAll extends AbsBaseTask {
                     if (resultElement.lastIndProbeDate) {
                         let lastIndProbeDate = new Date(resultElement.lastIndProbeDate);
                         let curWeekRange = getCurrentWeek();
-                        if (curWeekRange.startDate > lastIndProbeDate) {
+                        if (lastIndProbeDate> curWeekRange.startDate) {
                             console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.id, resultElement.name);
                             await buildTask('SGithub', resultElement).run();
                             // await sleep(1000);
@@ -54,7 +55,7 @@ export default class SGithubIndAll extends AbsBaseTask {
                     } else {
                         console.info(`${new Date().toLocaleTimeString()} src/index.ts:git指标采集():开始采集${++constNum}/${totalCount}`, resultElement.id, resultElement.name);
                         await buildTask('SGithub', resultElement).run();
-                        await sleep(1000);
+                        // await sleep(1000);
                     }
                 } catch (err) {
                     console.warn("方法:", err);
